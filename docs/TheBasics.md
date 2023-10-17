@@ -41,3 +41,96 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Ahora podemos visualizar que en nuestra main page lo que se carga es la pagina `home` en lugar de la página `welcome`
 
 ![Alt text](image-3.png)
+
+## Incluir CSS y JavaScript / Include CSS and JavaScript
+
+Este es el segundo video del modelo The Basics en el que vamos a incluir CSS y JavaScript basicos a una vista de nuestra pagina web.
+
+Para empezar vamos a cambiar el contenido del archivo `welcome.blade.php` por este codigo basico
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+```
+
+Y asi se veria nuestro sitio web con los cambios en el codigo
+
+![Alt text](image-4.png)
+
+En la carpeta de `resources` podemos encontrar dos carpetas llamadas `css` y `js` pero de momento vamos a ignorarlas.
+
+![Alt text](image-5.png)
+
+Nos vamos a concentrar en la carpeta `public` ya que dentro de esta en una carpeta llamada `css` tenemos un archivo css que es el que vamos a manipular para cambiar el diseño de la web.
+
+![Alt text](image-6.png)
+
+En el respectivo archivo css agregamos este epqueño codigo
+
+```css
+body {
+    background: navy;
+    color: white
+}
+```
+
+Luego nos movemos a nuestro archivo `welcome` y linkeamos el archivo app.css para poder visualizar los cambios en el diseño de la pagina
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+```
+
+Y podemos visualizar como cambia nuestra web 
+
+![Alt text](image-7.png)
+
+Para añadir JavaScript es el mismo proceso, solamente cambiando la carpeta `css` por la llamada `js` y el archivo `app.css` por el archivo `app.js`
+
+En `app.js` añadimos el siguiente codigo 
+
+```js
+alert('I am here');
+```
+
+Linkeamos nuestro archivo js con el archivo welcome.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+<script src="./js/app.js"></script>
+</html>
+```
+
+Y ahora al entrar en la web se desplegaria la alerta
+
+![Alt text](image-8.png)
+
