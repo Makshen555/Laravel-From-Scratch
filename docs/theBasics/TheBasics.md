@@ -1106,3 +1106,54 @@ Por ultimo dentro de el archivo post cambiamos el codigo por el siguiente
 </body>
 </html>
 ```
+
+Y ahora al entrar al post se veria de esta manera
+![Alt text](image-37.png)
+
+## Actualización sobre clasificación y almacenamiento en caché de colecciones / Collecting sorting and caching refresher
+
+Vamos a modificar el codigo de la función all() de la clase Post para poder clasificar por fecha
+
+```php
+public static function all() {
+
+        return collect(File::files(resource_path("posts")))
+            ->map(fn($file) => YamlFrontMatter::parseFile($file))
+            ->map(fn($document) => new Post(
+                $document->title,
+                $document->excerpt,
+                $document->date,
+                $document->body(),
+                $document->slug,
+            ))
+            ->sortBy('date');
+    }
+```
+
+Y ahora el cuarto post que tiene la fecha _2023-10-18_ se iria al final ya que los post se acomodan ascendentemente
+
+![Alt text](image-38.png)
+
+Ahora modificamos la funcion all() de la calse Post para que guarde siempre el cache
+```php
+public static function all() {
+
+    return cache()->rememberForever('posts.all', function () {
+        return collect(File::files(resource_path("posts")))
+            ->map(fn($file) => YamlFrontMatter::parseFile($file))
+            ->map(fn($document) => new Post(
+                $document->title,
+                $document->excerpt,
+                $document->date,
+                $document->body(),
+                $document->slug,
+                ))
+           ->sortBy('date');  
+        });
+}
+```
+
+Ahora para probar esto vamos a crear un nuevo post
+
+![Alt text](image-39.png)
+
