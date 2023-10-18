@@ -587,3 +587,25 @@ Route::get('posts/{post}', function ($slug) {
 ```
 
 Esto hace que nuestras rutas unicamente acepten letras, lo que nsootros queramos.
+
+## Utilización de caché para operaciones costosas / Use caching for expensive operations
+
+Para recordar las paginas en caché y no tener que cargar todo el contenido cada que recarguemos la página, vamos a agregar lo siguiente al codigo del archivo `web.php`
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    if (! file_exists($path = __DIR__ . "/../resources/posts/{$slug}.html")) {
+        //dd('el archivo no existe');
+        //ddd('el archivo no existe');
+        //abort(404);
+        return redirect('/');
+    };
+
+    $post = cache()->remember("posts.{$slug}", 3600, fn () => file_get_contents($path));
+
+    return view('post', ['post' => $post]);
+
+})->where('post', '[A-z_\-]+'); 
+```
+
