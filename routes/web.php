@@ -2,7 +2,7 @@
 
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
-
+use \Spatie\YamlFrontMatter\YamlFrontMatter;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,21 +16,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    return view('posts', [
+   return view('posts', [
         'posts' => Post::all()
     ]);
 });
 
 Route::get('posts/{post}', function ($slug) {
-    // Encontrar un post por medio del slug y pasarlo a la vista de ese post
-
-    $post = Post::find($slug);
 
     return view('post', [
-        'post' => $post
+        'post' => Post::find($slug)
     ]);
 
-})->where('post', '[A-z_\-]+'); 
+})->where('post', '[A-z_\-]+');
 
 Auth::routes();
 

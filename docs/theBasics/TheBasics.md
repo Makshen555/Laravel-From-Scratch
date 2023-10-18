@@ -756,3 +756,353 @@ Revisamos que se cargue en la pagina principal
 
 ![Alt text](image-29.png)
 
+## Encontrar un Composer Package para los metadatos de los Post / Find a composer package fro post metadata
+
+Para esto vamos a ir a nuestra VM webserver y vamos a utilizar el comando
+
+```bash
+composer require spatie/yaml-front-matter
+```
+![Alt text](image-30.png)
+
+Luego de descargar el paquete necesario vamos a editar el archivo Post para poder crear obejtos con los metadatos de los post
+
+```php
+public $title;
+
+public $excerpt;
+
+public $date;
+
+public $body;
+    
+public function __construct($title, $excerpt, $date, $body)
+{
+    $this->title = $title;
+    $this->excerpt = $excerpt;
+    $this->date = $date;
+    $this->body = $body;
+}
+```
+
+Luego vamos a editar el archivo web.php
+
+```php
+Route::get('/', function () {
+    $files = File::files(resource_path("posts"));
+    $posts = [];
+
+    foreach ($files as $file) {
+        $document = YamlFrontMatter::parseFile($file);
+
+        $posts[] = new Post(
+            $document->title,
+            $document->excerpt,
+            $document->date,
+            $document->body(),
+        );
+    }
+
+    ddd($posts);
+   /* return view('posts', [
+        'posts' => Post::all()
+    ]);*/
+});
+```
+
+Vamos a cambiar los archivos html para que tengan metadatos
+
+```html
+---
+title: Mi tercer post
+excerpt: Lorem ipsum dolor sit amet consectetur adipisicing elit.
+date: 2023-05-18
+---
+
+<p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate saepe autem mollitia impedit et. Et quasi,
+    officiis maxime, animi accusantium ipsum minus sequi nobis culpa iure error nihil dolorem omnis.</p>
+
+```
+
+Asi quedaría el html con los metadatos
+
+Ahora si vamos a nuestra web, podremos visualizar como se carga un array con los objetos `Post` que ya teniamos
+
+![Alt text](image-31.png)
+
+Modificamos la funcion para que los posts puedan ser vistos 
+```php
+Route::get('/', function () {
+    $files = File::files(resource_path("posts"));
+    $posts = [];
+
+    foreach ($files as $file) {
+        $document = YamlFrontMatter::parseFile($file);
+
+        $posts[] = new Post(
+            $document->title,
+            $document->excerpt,
+            $document->date,
+            $document->body(),
+        );
+    }
+
+   return view('posts', [
+        'posts' => $posts
+    ]);
+});
+
+Y ahora nos vamos al archivo Posts para modificarlo y poder visualizar los posts de manera correcta
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+
+    <?php foreach ($posts as $post) : ?>
+        <article>
+            <h1> <?= $post->title; ?> </h1>
+            <div>
+                    <?=  $post->body; ?>
+            </div>
+
+        </article>
+
+    <?php endforeach; ?>
+
+</body>
+</html>
+```
+
+Y ahora vamos a la pagina a visualizar los posts
+
+![Alt text](image-32.png)
+
+En caso de no querer el body, si no solo el excerpt en la pagina principal lo unico que deberiamos hacer es cambiar lo siguiente en el html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+
+    <?php foreach ($posts as $post) : ?>
+        <article>
+            <h1> <?= $post->title; ?> </h1>
+            <div>
+                    <?=  $post->excerpt; ?>
+            </div>
+
+        </article>
+
+    <?php endforeach; ?>
+
+</body>
+</html>
+```
+
+Y asi ser vería el resultado
+
+![Alt text](image-33.png)
+
+Para poder tener un link para entrar dentro de cada post vamos a hacer estos cambios
+
+En el archivo Posts agregamos este codigo
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+
+    <?php foreach ($posts as $post) : ?>
+        <article>
+            <h1> <a href="/posts/<?= $post->slug; ?>"> <?= $post->title; ?> </a> </h1>
+            <div>
+                    <?=  $post->excerpt; ?>
+            </div>
+
+        </article>
+
+    <?php endforeach; ?>
+
+</body>
+</html>
+```
+
+En la clase Post vamos a agregar un nuevo atributo el cual se llamará `$slug`
+
+```php
+    public $title;
+
+    public $excerpt;
+
+    public $date;
+
+    public $body;
+
+    public $slug;
+
+    public function __construct($title, $excerpt, $date, $body, $slug)
+    {
+        $this->title = $title;
+        $this->excerpt = $excerpt;
+        $this->date = $date;
+        $this->body = $body;
+        $this->slug = $slug;
+    }
+```
+
+Ahora detro de los metadatos del post vamos a añadir el slug
+
+```html
+---
+title: Mi primer post
+slug: my-first-post
+excerpt: Lorem ipsum dolor sit amet consectetur adipisicing elit.
+date: 2023-05-18
+---
+```
+
+Luego vamos a web.php para añadir el slug dentro del objeto
+```php
+$posts[] = new Post(
+            $document->title,
+            $document->excerpt,
+            $document->date,
+            $document->body(),
+            $document->slug,
+        );
+```
+
+Volvemos a la pagina y ahora se deberian ver los titulos de cada post como un link
+
+![Alt text](image-34.png)
+
+Y asi se veria dentro del post
+
+![Alt text](image-35.png)
+
+Ahora vamos a crear una colección por lo que haremos cambios en el archivo ``web.php``
+
+```php
+Route::get('/', function () {
+    $files = File::files(resource_path("posts"));
+
+    $posts = collect($files)
+        ->map(function ($file) {
+            $document = YamlFrontMatter::parseFile($file);
+
+            return  new Post(
+                $document->title,
+                $document->excerpt,
+                $document->date,
+                $document->body(),
+                $document->slug,
+            );
+        });
+
+   return view('posts', [
+        'posts' => $posts
+    ]);
+});
+
+```
+
+Revisamos que todo este correcto en la pagina
+
+![Alt text](image-36.png)
+
+Ahora vamos a hacer unos pequeños cambios y en vez de estar en web.php vamos a mover ese codigo a la clase post para que las rutas queden mas limpias
+
+Codigo del metodo all() en la clase Post
+```php
+public static function all() {
+
+        return collect(File::files(resource_path("posts")))
+            ->map(fn($file) => YamlFrontMatter::parseFile($file))
+            ->map(fn($document) => new Post(
+                $document->title,
+                $document->excerpt,
+                $document->date,
+                $document->body(),
+                $document->slug,
+            ));
+    }
+```
+
+Codigo en web.php
+```php
+Route::get('/', function () {
+
+   return view('posts', [
+        'posts' => Post::all()
+    ]);
+});
+```
+
+Ahora vamos a editar la funcion find() de la clase Post
+
+```php
+public static function find($slug) {
+        return static::all()->firstWhere('slug', $slug);
+    }
+```
+
+Modificamos el codigo en web.php
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    return view('post', [
+        'post' => Post::find($slug)
+    ]);
+}
+```
+
+Por ultimo dentro de el archivo post cambiamos el codigo por el siguiente
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+    <article>
+
+    <h1> <?= $post->title; ?> </h1>
+
+        <div>
+            <?= $post->body; ?>
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+
+</body>
+</html>
+```
