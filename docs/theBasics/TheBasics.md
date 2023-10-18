@@ -560,4 +560,30 @@ Ahora vamos a cambiar actualizar las rutas de los post para que no de error a la
 </body>
 </html>
 ```
-s
+
+## Restricciones de rutas / Routes wildcard constraints
+
+Para agregar restricciones a nuestras rutas debemos hacer lo siguiente
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    $path = __DIR__ . "/../resources/posts/{$slug}.html";
+
+    if (! file_exists($path)) {
+        //dd('el archivo no existe');
+        //ddd('el archivo no existe');
+        //abort(404);
+        return redirect('/');
+    }
+
+    $post = file_get_contents($path);
+
+    return view('post', [
+        'post' => $post
+    ]);
+
+})->where('post', '[A-z_\-]+'); 
+```
+
+Esto hace que nuestras rutas unicamente acepten letras, lo que nsootros queramos.
