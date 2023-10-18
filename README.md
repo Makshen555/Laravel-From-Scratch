@@ -7,4 +7,4 @@ Los modulos en los que se estara trabajando para este primer avance estan alojad
 
 ## Rutas de los Modulos
 
-- [The Basics](./docs/TheBasics.md)
+- [The Basics](./docs/theBasics/TheBasics.md)
