@@ -1157,3 +1157,6 @@ Ahora para probar esto vamos a crear un nuevo post
 
 ![Alt text](image-39.png)
 
+Y veremos como este se carga en nuestra pagina
+
+![Alt text](image-40.png)
