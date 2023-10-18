@@ -609,3 +609,150 @@ Route::get('posts/{post}', function ($slug) {
 })->where('post', '[A-z_\-]+'); 
 ```
 
+## Utilización de sistema de clases para leer directorios / Use the filesystem class to read a directory
+
+Primero vamos a editar el codigo de `web.php` añadiendo lo siguiente
+
+```php
+Route::get('posts/{post}', function ($slug) {
+    // Encontrar un post por medio del slug y pasarlo a la vista de ese post
+
+    $post = Post::find($slug);
+
+    return view('post', [
+        'post' => $post
+    ]);
+
+})->where('post', '[A-z_\-]+');
+```
+
+Luego vamos a la ruta _app/Models_ y vamos a crear una nueva clase llamada Post.php
+![Alt text](image-26.png)
+
+Dentro del archivo `Post.php` añadimos el siguiente codigo 
+
+```php
+<?php
+
+namespace App\Models;
+
+class Post
+{
+    public static function find($slug) {
+
+        if (! file_exists($path = resource_path("posts/{$slug}.html"))) {
+            abort(404);
+        }
+
+    return cache()->remember("posts.{$slug}", 1200, fn() => file_get_contents($path));
+
+    }
+}
+```
+
+Y el archivo `web.php` ahora quedaría de esta manera
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    $post = Post::find($slug);
+
+    return view('post', [
+        'post' => $post
+    ]);
+
+})->where('post', '[A-z_\-]+'); 
+```
+
+Por lo tanto el archivo web.php quedaria mas limpio, y el archivo post se estaria volviendo la clase para volver dinamica la ruta de los distintos post que creamos posteriormente.
+
+Ahora vamos a modificar el archivo `posts` para cargar los post desde sus respectivos html dinamicamente.
+
+El codigo en el archivo posts quedaria de esta manera
+
+```php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+
+<?php foreach ($posts as $post) : ?>
+
+    <article>
+        <?=  $post; ?>
+    </article>
+
+<?php endforeach; ?>
+
+</body>
+</html>
+```
+
+Y posterior a esto iremos a modificar la ruta principal en `web.php`
+
+```php
+Route::get('/', function () {
+
+    return view('posts', [
+        'posts' => Post::all();
+    ]);
+});
+```
+
+Ahora nos dirigimos a la clase Post para crear el metodo ``all()`` y así quedaría todo el codigo de la clase Post
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Support\Facades\File;
+
+class Post
+{
+    public static function all() {
+
+        $files = File::files(resource_path("posts/"));
+
+        return array_map(fn($file) => $file -> getContents(), $files);
+    }
+
+    public static function find($slug) {
+
+        if (! file_exists($path = resource_path("posts/{$slug}.html"))) {
+            abort(404);
+        }
+
+    return cache()->remember("posts.{$slug}", 1200, fn() => file_get_contents($path));
+
+    }
+}
+```
+
+Luego revisamos que se cargue todo de manera dinamica dentro de nuestra pagina web.
+
+![Alt text](image-27.png)
+
+Luego vamos a crear un cuarto post para asegurarnos de que al crear un nuevo post este se cargue de manera dinamica
+
+![Alt text](image-28.png)
+
+De esta manera quedaría el html dentro del nuevo post
+
+```html
+<h1>Mi cuarto post</h1>
+
+<p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate saepe autem mollitia impedit et. Et quasi,
+    officiis maxime, animi accusantium ipsum minus sequi nobis culpa iure error nihil dolorem omnis.</p>
+```
+
+Revisamos que se cargue en la pagina principal
+
+![Alt text](image-29.png)
+
