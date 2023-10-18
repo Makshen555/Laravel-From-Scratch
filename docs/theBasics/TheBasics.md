@@ -368,3 +368,196 @@ Ahora dentro de este nuevo archivo vamos a copiar el html para que muestre uno d
 Y asi se veria al clickear en el titulo de un post
 
 ![Alt text](image-17.png)
+
+## Almacenar publicaciones de blog como archivos HTML / Store Blog Posts as HTML Files
+
+Empezando con este tema lo que haremos sera editar el archivo `post` con el siguiente codigo, esto para que esa etiqueta php reciba una variable ``post``.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+    <article>
+
+    <?php= $post; ?>
+
+    </article>
+
+    <a href="/">Volver</a>
+
+</body>
+</html>
+```
+
+Ahora nos moveremos a ``web.php`` y añadimos lo siguiente en la ruta de post
+
+```php
+Route::get('post', function () {
+    return view('post', [
+        'post' ⇒ '<h1>Hello World</h1>'
+    ]);
+});
+```
+
+Y ahora al ingresar al link del titulo del post se despliega lo siguiente
+
+![Alt text](image-18.png)
+
+Lo siguiente será crear una carpeta con el nombre `post` dentro de la carpeta _resources_
+
+![Alt text](image-19.png)
+
+Y dentro de la carpeta `post` vamos a crear un archivo llamado `my-firts-post.html`
+
+![Alt text](image-20.png)
+
+Ahora dentro del archivo `my-firts-post.html` vamos a agregar este codigo
+
+```html
+<h1><a href="/post">Mi primer post</a></h1>
+
+<p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate saepe autem mollitia impedit et. Et quasi,
+    officiis maxime, animi accusantium ipsum minus sequi nobis culpa iure error nihil dolorem omnis.</p>
+```
+
+Y asi repetimos 3 veces mas para lograr obtener nuestros 3 post
+
+![Alt text](image-21.png)
+
+Ahora vamos a editar el archivo ``web.php`` en el que añadiremos lo siguiente.
+
+```php
+Route::get('post', function () {
+    return view('post', [
+        'post' => file_get_contents(__DIR__ . '/../resources/post/my-first-post.html')
+    ]);
+});
+```
+
+![Alt text](image-22.png)
+
+Ahora para lograr que el codigo sea dinamico y podamos ingresar al post seleccionado vamos a utilizar el siguiente codigo
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    $post = file_get_contents(__DIR__ . '/../resources/post/{$slug}.html');
+
+    return view('post', [
+        'post' => $post
+    ]);
+});
+```
+
+Ahora con este codigo lo que logramos fue poder ingresar al html ya sea del primer, segundo o tercer post por medio de la URL utilizando ``$slug``
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    $post = file_get_contents(__DIR__ . "/../resources/posts/{$slug}.html");
+    
+    return view('post', [
+        'post' => $post
+    ]);
+});
+```
+
+![Alt text](image-23.png)
+
+Ahora vamos a validar que la ruta sea valida, por lo que vamos a cambiar el codigo
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    $path = __DIR__ . "/../resources/posts/{$slug}.html";
+
+    if (! file_exists($path)) {
+        dd('el archivo no existe');
+    }
+
+    $post = file_get_contents($path);
+
+    return view('post', [
+        'post' => $post
+    ]);
+});
+```
+
+Ahora si por alguna razon la ruta a la que deseamos acceder no existe la pagina devovlera la siguiente pagina
+
+![Alt text](image-24.png)
+
+Y si cambiamos `dd` por `ddd` se veria de esta manera 
+
+![Alt text](image-25.png)
+
+O si queremos que cuando se intente acceder a una ruta no existente podemos devovler la pagina a la pagina principal con el siguiente codigo
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    $path = __DIR__ . "/../resources/posts/{$slug}.html";
+
+    if (! file_exists($path)) {
+        //dd('el archivo no existe');
+        //ddd('el archivo no existe');
+        //abort(404);
+        return redirect('/');
+    }
+
+    $post = file_get_contents($path);
+
+    return view('post', [
+        'post' => $post
+    ]);
+});
+```
+
+Ahora vamos a cambiar actualizar las rutas de los post para que no de error a la hora de ingresar desde la pagina principal
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+    <article>
+
+        <h1><a href="/posts/my-first-post">Mi primer post</a></h1>
+
+        <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate saepe autem mollitia impedit et. Et quasi, officiis maxime, animi accusantium ipsum minus sequi nobis culpa iure error nihil dolorem omnis.</p>
+    
+    </article>
+
+    <article>
+
+        <h1><a href="/posts/my-second-post">Mi segundo post</a></h1>
+
+        <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate saepe autem mollitia impedit et. Et quasi, officiis maxime, animi accusantium ipsum minus sequi nobis culpa iure error nihil dolorem omnis.</p>
+    
+    </article>
+    
+    <article>
+
+        <h1><a href="/posts/my-third-post">Mi tercer post</a></h1>
+
+        <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate saepe autem mollitia impedit et. Et quasi, officiis maxime, animi accusantium ipsum minus sequi nobis culpa iure error nihil dolorem omnis.</p>
+    
+    </article>
+
+</body>
+</html>
+```
+s
