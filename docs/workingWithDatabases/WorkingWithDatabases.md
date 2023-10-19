@@ -528,6 +528,91 @@ Y como vemos los posts se cargan son su respectiva categoría.
 
 ## Mostrar todas las publicaciones asociadas con una categoría / Show All Posts Associated With a Category
 
+Creamos una nueva ruta en web.php
+
+```php
+Route::get('categories/{category}', function (Category $category) {
+
+    return view('posts', [
+        'posts' => $category->posts
+    ]);
+});
+```
+
+Creamos una nueva funcion en la clase Category para llamar todos los post que tienen esa misma categoría
+
+```php
+public function posts() {
+        return $this->hasMany(Post::class);
+    }
+```
+
+Revisamospor  en la terminal como funciona esta nueva función
+
+![Alt text](image-60.png)
+
+Ahora modificamos las vistas para poder cargar las categorias por medio del slug y no del id
+
+```php
+//post.blade.php
+@extends('layouts.layout')
+
+@section ('content')
+    <article>
+
+        <h1> {{ $post->title }} </h1>
+
+        <p>
+            <a href="/categories/{{ $post->category->slug }}"> {{ $post->category->name }} </a>
+        </p>
+
+        <div>
+            {!! $post->body !!}
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+@endsection
+```
+
+```php
+//posts.blade.php
+@extends('layouts.layout')
+
+@section('content')
+    @foreach ($posts as $post)
+        <article>
+            <h1>
+                <a href="/posts/{{ $post->slug }}"> {{$post->title}} </a>
+            </h1>
+
+            <p>
+                <a href="/categories/{{ $post->category->slug }}"> {{ $post->category->name }} </a>
+            </p>
+
+            <div>
+                {{$post->excerpt}}
+            </div>
+        </article>
+    @endforeach
+@endsection
+```
+Editamos la funcion de la ruta en web.php para que busque la categoria por el slug
+
+```php
+Route::get('categories/{category:slug}', function (Category $category) {
+
+    return view('posts', [
+        'posts' => $category->posts
+    ]);
+});
+```
+
+Y visualizamos la pagina de la categoría donde se cargan todos los posts asociados a esa categoría
+
+![Alt text](image-61.png)
+
 ## El mecanismo de relojería y el problema N+1 / Clockwork, and the N+1 Problem
 
 ## La siembra de bases de datos ahorra tiempo / Database Seeding Saves Time
