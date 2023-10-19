@@ -304,7 +304,101 @@ protected $guarded = ['id'];
 
 ## Enlace del modelo de ruta / Route Model Binding
 
+Vamos a modifcar el codigo en el archivo ``web.php`` esta modificacion funciona exactamente que la anterior cuando se le pasaba el id del post por parametro, solo que como en el wildcard estamos pasando _{post}_ en los parametros al ponerlo de esta manera funcionaría igualmente.
 
+```php
+Route::get('posts/{post}', function (Post $post) {
+
+    return view('post', [
+        'post' => Post::findOrFail($post)
+    ]);
+});
+```
+
+![Alt text](image-40.png)
+
+Ahora dentro del archivo de migracion ``create_post`` vamos a añadir un nuevo atributo el cual será el _slug_ este llevará unique() ya que no queremos que el slug se repita.
+
+```php
+public function up()
+    {
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->string('slug')->unique();
+            $table->string('title');
+            $table->text('excerpt');
+            $table->text('body');
+            $table->timestamps();
+            $table->timestamp('published_at')->nullable();
+        });
+    }
+```
+
+Ahora vamos a refrescar la migración para que los cambios se vean reflejados en la base de datos
+
+![Alt text](image-41.png)
+
+Ademas de hacer esto, tenemos que ir a la base de datos y hacer un insert de los posts ya creados, ya que al utilizar `fresh` este eliminrá toda la infromación que se encontraba en la tabla
+
+Una vez haber hecho el insert y añadido el slug dentro de ese mismo insert podemos ver como nuestros posts y la tabla tienen el slug
+
+![Alt text](image-42.png)
+
+Ahora vamos a `web.php` y editamos el codigo para que no se filtre por id si no por slug
+
+```php
+Route::get('posts/{post:slug}', function (Post $post) {
+
+    return view('post', [
+        'post' => $post
+    ]);
+});
+```
+
+Además de esto vamos al archivo post.blade.php a pasar por parametro el slug en vez del id
+
+```php
+@extends('layouts.layout')
+
+@section('content')
+    @foreach ($posts as $post)
+        <article>
+            <h1><a href="/posts/{{ $post->slug }}"> {{$post->title}} </a></h1>
+            <div>
+                {{$post->excerpt}}
+            </div>
+        </article>
+    @endforeach
+@endsection
+```
+
+Ahora vamos a visulizar los cambios en la url de la nuestra web al momento de ingresar en un post
+
+![Alt text](image-43.png)
+
+Ahora vamos a ver otro metodo para encontrar el identificador de un post, dentro de la clase Post, vamos a añadir este código.
+
+```php
+public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+```
+
+Ahora vamos a ``web.php`` y cambiamos los siguiente
+
+```php
+Route::get('posts/{post}', function (Post $post) {
+
+    return view('post', [
+        'post' => $post
+    ]);
+});
+```
+
+Y ahora visualizamos la web para ver como los post se cargan por el slug aunque no este tipado en el wildcard
+
+![Alt text](image-44.png)
 
 ## Tu primera relación elocuente / Your Firts Eloquent Relationship
 
