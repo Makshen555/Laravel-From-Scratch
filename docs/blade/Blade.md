@@ -185,3 +185,34 @@ También modificamos el archivo posts donde a entender que también pueden utili
 Aunque a mi de este modo no me funcionó :(
 
 ## Algunos ajustes y consideraciones / A few tweaks and consideration
+
+Empezamos removiendo este trozo de codigo del archico `web.php`
+
+```php
+->where('post', '[A-z_\-]+');
+```
+
+Ahora vamos a crear una nueva función en la clase Post que se llamará `findOrFail` que se encargará de dar error en la pagina si la ruta no es valida. Esta llevará este código.
+
+```php
+public static function findOrFail($slug) {
+    $post = static::find($slug);
+        
+    if (! $post) {
+        throw new ModelNotFoundException();
+    }
+    
+    return $post;
+}
+```
+
+Y en el archivo ``web.php`` cambiamos lo siguiente para que al momento de entrar en un post o uns ruta inexistente se dispare el error de ser necesario.
+
+```php
+Route::get('posts/{post}', function ($slug) {
+
+    return view('post', [
+        'post' => Post::findOrFail($slug)
+    ]);
+});
+```
