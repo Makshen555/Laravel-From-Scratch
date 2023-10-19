@@ -41,6 +41,75 @@ php artisan migrate:fresh
 
 ## Elocuente y el patrón de registro activo / Eloquent and the Active Record Pattern
 
+Ahora vamos a crear un usuario directamente desde nuestra terminal de comandos, por lo que vamos a ingresar a la VM webserver y vamos a correr los siguientes comandos
+
+
+```php
+php artisan tinker
+
+$user = new App\Models\User;
+
+$user = new User;
+
+$user->name = 'Andres Salas'
+
+$user->email = 'andressalas@gmail.com'
+
+$user->password = bcrypt('!password')
+
+$user->save();
+```
+
+Ahora vamos a Workbench a verificar si nuestro nuevo usuario fue creado
+
+![Alt text](image-2.png)
+
+Como podemos visualizar nuestro usuario fue creado perfectamente.
+
+Ahora si dentro de la terminal de comandos utilizamos la variable ``$user` podremos observar la información del usuario recientemente creado
+
+![Alt text](image-3.png)
+
+Tambien podemos realizar cambios sobre ese mismo objeto, de la siguiente manera
+
+```bash
+$user->name = 'John Doe';
+
+$user->save();
+```
+
+Podemos visualizar como los cambios son mostrados la proxima vez que llamemos la variable
+
+![Alt text](image-4.png)
+
+Tambien podemos buscar usuarios por medio del ID de la siguiente manera
+
+![Alt text](image-5.png)
+
+En mi caso yo ya tenia un usuario guardado en la base de datos, pero para buscar el recien creado utilizamos el mismo coamdno con el id `2`
+
+![Alt text](image-6.png)
+
+Tambien podemos llamar todos los usuarios de esta manera
+
+![Alt text](image-7.png)
+
+Podemos guardar el resultado de esta funcion dentro de una variable
+
+![Alt text](image-8.png)
+
+Y retornar lo que queramos de esta variable
+
+![Alt text](image-9.png)
+
+Tambien podemos retornar el primer dato de esa variable
+
+![Alt text](image-10.png)
+
+O tambien podemos hacerlo como un array
+
+![Alt text](image-11.png)
+
 ## Tres formas de mitigar las vulnerabilidades de las asignaciones masivas / 3 Ways to Mitigate Mass Assignment Vulnerabilities
 
 ## Enlace del modelo de ruta / Route Model Binding
