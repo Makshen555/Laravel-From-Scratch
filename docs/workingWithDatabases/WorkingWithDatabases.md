@@ -10,6 +10,35 @@ Ademas de hacer los cambios para poder conectarnos  al abse de datos vamos a utl
 
 ## Migraciones: conceptos básicos absolutos / Migrations: The Absolute Basics
 
+Para crear migraciones en la base de datos utilizamos el comando
+
+```bash
+php artisan migrate
+```
+
+Y para volver atras de una migración utilizamos el comando
+
+```bash
+php artisan migrate:rollback
+```
+
+Aca añadiré los demás comandos que se pueden utilizar con ``migrate``
+
+![Alt text](image.png)
+
+Para que los cambios que realizamos en el esquema de la base de datos en los archivos de migracion, tenemos que utilizar los comandos 
+
+![Alt text](image-1.png)
+
+```bash
+php artisan migrate:rollback
+php artisan migrate
+
+// O por el contrario podemos utilizar
+
+php artisan migrate:fresh
+```
+
 ## Elocuente y el patrón de registro activo / Eloquent and the Active Record Pattern
 
 ## Tres formas de mitigar las vulnerabilidades de las asignaciones masivas / 3 Ways to Mitigate Mass Assignment Vulnerabilities
