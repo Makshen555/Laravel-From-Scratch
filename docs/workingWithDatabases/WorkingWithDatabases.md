@@ -615,7 +615,42 @@ Y visualizamos la pagina de la categoría donde se cargan todos los posts asocia
 
 ## El mecanismo de relojería y el problema N+1 / Clockwork, and the N+1 Problem
 
+Tenemos un problema y es que cuando se estan cargando los posts en la main page se esta corriendo el mismo query 3 veces y eso ralentiza pa pagina, por lo que lo idean sería que solo se cargue una vez.
+
+Vamos a utilizar una herramienta llamada clockwork que instalaremos dentro de nuestra VM websever con el siguiente comando
+
+```bash
+$ composer require itsgoingd/clockwork
+```
+![Alt text](image-62.png)
+
+Ademas necesitaremos la extension del navegador que encontramos en el siguiente repositorio de github 
+
+-[Clockwork](https://github.com/itsgoingd/clockwork)
+
+Con esta extension podemos ver desde los dev tools del navegador los querys que se estan corriendo al momento de cargar la pagina
+
+![Alt text](image-63.png)
+
+Entonces para resolver esto vamos a editar la ruta en el archivo web.php
+
+```php
+Route::get('/', function () {
+
+   return view('posts', [
+        'posts' => Post::with('category')->get()
+    ]);
+});
+
+```
+
+Ahora visualizamos la web y veremos que solo se cargan dos querys pero la pagina sigue funcionando de la misma manera
+
+![Alt text](image-64.png)
+
 ## La siembra de bases de datos ahorra tiempo / Database Seeding Saves Time
+
+
 
 ## Turbo Boost con fábricas / Turbo Boost With Factories
 
