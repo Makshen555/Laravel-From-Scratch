@@ -81,4 +81,107 @@ También podemos realizar estos cambios para mejorar la apariencia del codigo en
 
 ## Diseños blade de dos maneras / Blade layouts two ways
 
+Creamos una nueva vista llamada ``layout`` en la carpeta de Views
+
+![Alt text](image-2.png)
+
+Le agregamos el siguiente codigo
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+    @yield('content')
+</body>
+</html>
+```
+
+Ahora modificamos el archivo posts de la siguiente manera
+
+```php
+@extends('layout')
+
+@section('content')
+    @foreach ($posts as $post)
+        <article>
+            <h1> <a href="/posts/{{ $post->slug }}"> {{$post->title}} </a> </h1>
+            <div>
+                {{$post->excerpt}}
+            </div>
+        </article>
+    @endforeach
+@endsection
+```
+
+Ahora modificamos el archivo post
+
+```php
+@extends('layout')
+
+@section ('content')
+    <article>
+
+        <h1> {{ $post->title }} </h1>
+
+        <div>
+            {!! $post->body !!}
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+@endsection
+```
+
+Y como podemos ver todo la pagina sigue comportandose de la misma manera, solo que el codigo se ha vuelto muvho ams limpio.
+
+![Alt text](image-3.png)
+
+![Alt text](image-4.png)
+
+Ahora vamos a mover el archivo `layout.balde.php` dentro de la carpeta layouts
+
+![Alt text](image-5.png)
+
+Vamos a modificar el codigo del archivo `layout.balde.php`
+
+```php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/app.css">
+    <title>My Blog</title>
+</head>
+
+<body>
+{{ $content }}
+</body>
+</html>
+```
+
+También modificamos el archivo posts donde a entender que también pueden utilizarse los layouts de esta manera
+
+```php
+<x-layout>
+    @foreach ($posts as $post)
+        <article>
+            <h1><a href="/posts/{{ $post->slug }}"> {{$post->title}} </a></h1>
+            <div>
+                {{$post->excerpt}}
+            </div>
+        </article>
+    @endforeach
+</x-layout>
+```
+
+Aunque a mi de este modo no me funcionó :(
+
 ## Algunos ajustes y consideraciones / A few tweaks and consideration
