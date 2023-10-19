@@ -234,12 +234,77 @@ Y visualizamos la web para visualizar nuestro nuevo post
 
 ![Alt text](image-30.png)
 
-## Eloquent Updates and HTML Escanping
+## Actualizaciones elocuentes y escaneo HTML / Eloquent Updates and HTML Escanping
+
+Vamos a cambiar el body del posts para que al cargarse en el html este se cargue en una etiqueta ``<p>`` en vez de cargarse en texto plano.
+
+![Alt text](image-31.png)
+
+Ahora vemos como nuestro posts esta en una etiqueta <p> en vez de en texto plano y se carga el css de la etiqueta.
+
+![Alt text](image-32.png)
+
+Ahora repetimos el mismo proceso con el otro post.
+
+![Alt text](image-33.png)
+
+Para poder cargar etiquetas desde la base de datos hay que tener la etique donde se cargue la informacion de esta manera. {!! $post->title !!}, de lo contrario no funcionaria.
+
+```php
+@extends('layouts.layout')
+
+@section ('content')
+    <article>
+
+        <h1> {!! $post->title !!} </h1>
+
+        <div>
+            {!! $post->body !!}
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+@endsection
+```
+
+Ahora vamos a guardar una alerta en el titulo del primer post. Esto es normalmente utilizado para inyectar codigo malisioso dentro de nuestro codigo.
+
+![Alt text](image-34.png)
+
+Y vemos como al cargar la web podemos visualizar la alerta.
+
+![Alt text](image-35.png)
+
+Cualquier persona que cree un post dentro de nuestra web y sepa un poco del tema podria inyectar javascript dentro de nuestro codigo por lo que lo conveniente sería mantener las etiquetas de esta manera <h1> {{ $post->title }} </h1> para evitar esos problemas, ahora vi visualizamos la web, la alerta ya no cargaría.
+
+![Alt text](image-36.png)
 
 ## Tres formas de mitigar las vulnerabilidades de las asignaciones masivas / 3 Ways to Mitigate Mass Assignment Vulnerabilities
 
+Vamos a crear un nuevo post
+
+![Alt text](image-37.png)
+
+Ahora vamos a agregar un parametro nuevo en la clase de Post para poder mitigar ciertas vulnerabilidades dentro de los Post, lo que no este dentro de este nuevo atributo será ignorado a la hora de crear el post, para esto utilziamos $fillable.
+
+```php
+protected $fillable = ['title', 'excerpt', 'body'];
+```
+
+Ahora creamos un nuevo post, pero ademas de title, excerpt y body, agregaremos id y veremos como este será ignorado
+
+![Alt text](image-38.png)
+
+Tambien esta el atributo $guarded que lo que hace es rellenar todos los atributos a escepción de los guardados dentro de la variable
+
+```php
+protected $guarded = ['id'];
+```
 
 ## Enlace del modelo de ruta / Route Model Binding
+
+
 
 ## Tu primera relación elocuente / Your Firts Eloquent Relationship
 
