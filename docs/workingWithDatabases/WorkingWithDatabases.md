@@ -402,6 +402,130 @@ Y ahora visualizamos la web para ver como los post se cargan por el slug aunque 
 
 ## Tu primera relación elocuente / Your Firts Eloquent Relationship
 
+Lo siguiente será figurar las categorias de cada post, para en el futuro poder filtrar por categoría.
+
+Vamos a ver una nueva manera de crear una tabla, en este caso vamos a crear el Model de Category y vamos a agregar -m para crear la migración que posteriormente se convertirá en una tabla de la base de datos.
+
+![Alt text](image-45.png)
+
+Como vemos se creó tanto el Model como la migración.
+
+![Alt text](image-46.png)
+
+![Alt text](image-47.png)
+
+En la migración modificaremos el codigo para agregar las columnas que necesitamos
+
+```php
+public function up()
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug');
+            $table->timestamps();
+        });
+    }
+```
+
+Y ahora crearemos una foreign key para enlazar la tabla categories con la de posts
+
+```php
+public function up()
+    {
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('category_id');
+            $table->string('slug')->unique();
+            $table->string('title');
+            $table->text('excerpt');
+            $table->text('body');
+            $table->timestamps();
+            $table->timestamp('published_at')->nullable();
+        });
+    }
+```
+
+Y ahora refrescamos la base de datos para agregar la nueva tabla y la nueva columna
+
+![Alt text](image-48.png)
+
+Y como vemos ya estaría la nueva tabla creada y la nueva columna en la tabla posts
+
+![Alt text](image-49.png)
+
+![Alt text](image-50.png)
+
+Ahora vamos a crear una nueva catergoría en la base de datos
+
+![Alt text](image-51.png)
+
+Vamos a crear dos más.
+
+![Alt text](image-52.png)
+
+Ahora en nuestra base de datos tenemos 3 categorias.
+
+![Alt text](image-53.png)
+
+Creamos nuevos post
+
+![Alt text](image-54.png)
+
+Ya que tenemos un post creado vamos a hacer un select en el workbench donde la categoría sea 1
+
+![Alt text](image-55.png)
+
+Ahora creamos otros dos post más
+
+![Alt text](image-56.png)
+
+Y vemos en la base de datos los 3 posts
+
+![Alt text](image-57.png)
+
+Ahora vamos a la Post a crear la relación elocuente
+
+```php
+public function category() {
+        return $this->belongsTo(Category::class);
+    }
+```
+
+Y ahora en nuestra terminal podemos visualizar los detalles del post y de su categoria
+
+![Alt text](image-58.png)
+
+Editamos el archivo post.blade.php para que tambien muestre en la vista la cterogria de post
+
+```php
+@extends('layouts.layout')
+
+@section('content')
+    @foreach ($posts as $post)
+        <article>
+            <h1>
+                <a href="/posts/{{ $post->slug }}"> {{$post->title}} </a>
+            </h1>
+
+            <p>
+                <a href="#"> {{ $post->category->name }} </a>
+            </p>
+
+            <div>
+                {{$post->excerpt}}
+            </div>
+        </article>
+    @endforeach
+@endsection
+```
+
+Visualizamos la pagina
+
+![Alt text](image-59.png)
+
+Y como vemos los posts se cargan son su respectiva categoría.
+
 ## Mostrar todas las publicaciones asociadas con una categoría / Show All Posts Associated With a Category
 
 ## El mecanismo de relojería y el problema N+1 / Clockwork, and the N+1 Problem
