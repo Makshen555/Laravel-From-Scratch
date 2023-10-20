@@ -149,7 +149,7 @@ Ahora vamos a mover el archivo `layout.balde.php` dentro de la carpeta layouts
 
 ![Alt text](image-5.png)
 
-Vamos a modificar el codigo del archivo `layout.balde.php`
+Vamos a modificar el codigo del archivo `layout.blade.php`
 
 ```php
 <!DOCTYPE html>
