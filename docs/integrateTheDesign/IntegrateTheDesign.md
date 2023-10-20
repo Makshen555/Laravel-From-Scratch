@@ -289,6 +289,22 @@ Y ahora con los cambios en los componentes y en la vista de post podemos visuali
 
 ## Un pequeño desvío del menú desplegable de JavaScript / A Small JavaScript Dropdown Detour
 
+Copiamos la siguiente linea de codigo dentro de nuestro archivo layout
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+```
+
+Luego de modificar el archivo _post-headers vamos a la web y vemos como se cargar dinamicamente las categorias
+
+![Alt text](image-6.png)
+
+Ahora para poder ingresar a los posts desde el menu de categorías agregamos esto en la ruta en web.php
+
+```php
+
+```
+
 ## Cómo extraer un componente de hoja desplegable / How to Extract a Dropdown Blade Component
 
 ## Tweeks rápidos y limpieza / Quick Tweeks and Clean-Up
