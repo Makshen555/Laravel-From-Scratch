@@ -302,9 +302,126 @@ Luego de modificar el archivo _post-headers vamos a la web y vemos como se carga
 Ahora para poder ingresar a los posts desde el menu de categorías agregamos esto en la ruta en web.php
 
 ```php
+Route::get('/', function () {
 
+   return view('posts', [
+        'posts' => Post::latest()->get(),
+       'categories' => Category::all()
+
+    ]);
+});
+
+Route::get('posts/{post}', function (Post $post) {
+
+    return view('post', [
+        'post' => $post
+    ]);
+});
+
+Route::get('categories/{category:slug}', function (Category $category) {
+
+    return view('posts', [
+        'posts' => $category->posts,
+        'currentCategory' => $category,
+        'categories' => Category::all()
+    ]);
+});
+
+Route::get('authors/{author:username}', function (User $author) {
+
+    return view('posts', [
+        'posts' => $author->posts,
+        'categories' => Category::all()
+    ]);
+});
 ```
 
 ## Cómo extraer un componente de hoja desplegable / How to Extract a Dropdown Blade Component
+
+Creamos un nuevo componente llamado dropdown.blade.php para guardar todo el codigo para el menu despleglegable que hicimos el video anterior
+
+![Alt text](image-7.png)
+
+El codigo es el siguiente 
+
+```php
+@props(['trigger'])
+
+<div x-data="{show: false}" @click.away="show = false">
+    {{-- Triggers --}}
+    
+    <div @click="show = ! show">
+        {{ $trigger }}
+    </div>
+
+    {{-- Links --}}
+    <div x-show="show" class="py-2 absolute bg-gray-100 mt-2 rounded-xl w-full z-50" style="display: none">
+        {{ $slot }}
+    </div>
+</div>
+```
+
+Creamos un nuevo componente llamado dropdown-item.blade.php para guardar css del menú desplegable
+
+![Alt text](image-8.png)
+
+Agregamos el siguiente codigo al archivo web.php para darle nombre a la ruta
+
+```php
+Route::get('/', function () {
+
+   return view('posts', [
+        'posts' => Post::latest()->get(),
+       'categories' => Category::all()
+
+    ]);
+})->name('home');
+```
+
+Esto para que el siguiente codigo del menu desplegable marque en que parte del menu se encuentra la pagina
+
+```php
+<x-dropdown-item href="/" :active="request()->routeIs('home')">All </x-dropdown-item>
+```
+
+Agregamos un nuevo componente llamado `down-arrow.blade.php`
+
+![Alt text](image-9.png)
+
+Este tendar el codigo de la flecha del menu desplegable
+
+```php
+<svg {{ $attributes (['class' => 'transform -rotate-90']) }} width="22" height="22" viewBox="0 0 22 22">
+    <g fill="none" fill-rule="evenodd">
+        <path stroke="#000" stroke-opacity=".012" stroke-width=".5" d="M21 1v20.16H.84V1z">
+        </path>
+        <path fill="#222"
+              d="M13.854 7.224l-3.847 3.856 3.847 3.856-1.184 1.184-5.04-5.04 5.04-5.04z"></path>
+    </g>
+</svg>
+```
+
+Ahora otra forma de hacerlo es renombrar el archivo down-arrow a icon y por medio de props pasar el nombre
+
+```php
+@props(['name'])
+
+@if($name == 'down-arrow')
+    <svg {{ $attributes (['class' => 'transform -rotate-90']) }}  width="22" height="22" viewBox="0 0 22 22">
+        <g fill="none" fill-rule="evenodd">
+            <path stroke="#000" stroke-opacity=".012" stroke-width=".5" d="M21 1v20.16H.84V1z">
+            </path>
+            <path fill="#222"
+                  d="M13.854 7.224l-3.847 3.856 3.847 3.856-1.184 1.184-5.04-5.04 5.04-5.04z"></path>
+        </g>
+    </svg>
+@endif
+```
+
+Esta sería la manera de llamar a este componente
+
+```php
+<x-icon name="down-arrow" class="absolute pointer-events-none" style="right: 12px;" />
+```
 
 ## Tweeks rápidos y limpieza / Quick Tweeks and Clean-Up
