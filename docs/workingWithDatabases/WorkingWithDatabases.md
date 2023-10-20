@@ -650,7 +650,181 @@ Ahora visualizamos la web y veremos que solo se cargan dos querys pero la pagina
 
 ## La siembra de bases de datos ahorra tiempo / Database Seeding Saves Time
 
+Vamos a crear una coneccion entre los post y el usuario que los crea, por lo que en la migracion de posts vamos a crear otro foreign key
 
+```php
+public function up()
+    {
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id');
+            $table->foreignId('category_id');
+            $table->string('slug')->unique();
+            $table->string('title');
+            $table->text('excerpt');
+            $table->text('body');
+            $table->timestamps();
+            $table->timestamp('published_at')->nullable();
+        });
+    }
+```
+
+Y ahora refrescamos la base de datos
+
+![Alt text](image-65.png)
+
+Y ahora vemos como dentro de la base de datos en la tabla posts tenemos la columna de user_id
+
+![Alt text](image-66.png)
+
+Cada vez que refrescamos la base de datos con el comando migration:fresh perdemos toda la informacion de prueba qie introducimos, por lo que para arreglar esto haremos lo sigueinte
+
+Nos dirigimos al archivo ``DatabaseSeeder.php``
+
+![Alt text](image-67.png)
+
+Dentro del archivo creamos lo siguiente
+
+```php
+public function run()
+    {
+        \App\Models\User::factory(10)->create();
+    }
+```
+
+Luego nos movemos a la terminal de la Vm webserver y corremos el siguiente comando
+
+![Alt text](image-68.png)
+
+Este comando junto con el codigo anterior lo que hace es crearnos 10 usuarios como informacion de prueba dentro de la base de datos.
+
+![Alt text](image-69.png)
+
+Ahora vamos a cambiar en la migracion de categories para que el nombre y el slug sean unicos
+
+```php
+public function up()
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->timestamps();
+        });
+    }
+```
+
+Ahora vamos a hacer cambios en el DataSeeder para que siembre información e ignore información que no pueda repetir
+
+```php
+public function run()
+    {
+
+        User::truncate();
+        Category::truncate();
+        Post::truncate();
+
+        $user = User::factory()->create();
+
+        $personal = Category::create([
+            'name' => 'Personal',
+            'slug' => 'personal',
+        ]);
+
+        $family = Category::create([
+            'name' => 'Family',
+            'slug' => 'family',
+        ]);
+
+        $work = Category::create([
+            'name' => 'Work',
+            'slug' => 'work',
+        ]);
+
+        Post::create([
+            'user_id' => $user->id,
+            'category_id' => $family->id,
+            'title' => 'My Family Post',
+            'slug' => 'my-family-post',
+            'excerpt' => 'Lorem ipsum dolor sit amet.',
+            'body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+        ]);
+
+        Post::create([
+            'user_id' => $user->id,
+            'category_id' => $work->id,
+            'title' => 'My Work Post',
+            'slug' => 'my-work-post',
+            'excerpt' => 'Lorem ipsum dolor sit amet.',
+            'body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+        ]);
+    }
+```
+
+Con este codigo ahora creamos un solo usuario, 3 categorias y 3 posts, y adaptamos el codigo para que si alguna categoría o usuario ya existe este la ignore
+
+![Alt text](image-70.png)
+
+![Alt text](image-71.png)
+
+![Alt text](image-72.png)
+
+Ahora cada vez que refresquemos la base de datos sembraremos información de prueba con el comando 
+
+```php
+php artisan migrate:fresh --seed
+```
+
+Ahora creamos las relaciones elocuentes entre post y user
+
+Añadimos esta funcion a la clase Post
+
+```php
+public function user() {
+        return $this->belongsTo(User::class);
+    }
+```
+
+Y en la clase User añadimos esta funcion
+
+```php
+public function posts(){
+        return $this->hasMany(Post::class);
+    }
+```
+
+Ahora dentro de la terminal de nuestra VM webserver podremos buscar un usuario y acceder a los posts de este
+
+![Alt text](image-73.png)
+
+Ahora haremos que en nuestro post se muestre el usuario dueño del post dinamicamente
+
+```php
+@extends('layouts.layout')
+
+@section ('content')
+    <article>
+
+        <h1> {!! $post->title !!} </h1>
+
+        <p>
+            <a href="#">{{$post->user->name}}</a>
+            in 
+            <a href="/categories/{{ $post->category->slug }}"> {{ $post->category->name }} </a>
+        </p>
+
+        <div>
+            {!! $post->body !!}
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+@endsection
+```
+Y vemos como nuestro post ahora tiene el nombre de su usuario
+
+![Alt text](image-74.png)
 
 ## Turbo Boost con fábricas / Turbo Boost With Factories
 
