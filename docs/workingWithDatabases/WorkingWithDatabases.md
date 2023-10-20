@@ -899,7 +899,7 @@ Ahora cada vez que creemos un post este va a crear un categoría generica y un u
 
 ![Alt text](image-79.png)
 
-## Ver todos los mensajes de un autor / View All Posts by An Author
+## Ver todos los post de un autor / View All Posts by An Author
 
 Cada vez que un post es creado este se va al final de la pagina, para corregir esto y tener los posts mas recientes primero, hacemos esta pequeña modificación en la ruta en ``web.php``
 
@@ -1049,6 +1049,75 @@ Y modificamos el codigo en posts y post para que al darle click al autor este no
 @endsection
 ```
 
-Ahora podemos visualizar los posts de un mismo autor
+Ahora podemos visualizar los posts de un mismo autor por medio de su username en la URl
+
+![Alt text](image-82.png)
 
 ## Relaciones de carga ansiosas en un modelo existente / Eager Load Relationships on an Existing Model
+
+Vamos a crear 10 posts con el id de categoría 1
+
+![Alt text](image-83.png)
+
+Ahora vamos a visualizar el clockwork al cargar estos posts en la categoría
+
+![Alt text](image-84.png)
+
+Podemos ver que de nuevo hay muchos querys corriendose al mismo tiempo, al cargar todos los posts de un mismo autor pasa lo mismo, por lo que modificaremos las rutas en ``web.php``
+
+```php
+Route::get('categories/{category:slug}', function (Category $category) {
+
+    return view('posts', [
+        'posts' => $category->posts->load(['category', 'author'])
+    ]);
+});
+
+Route::get('authors/{author:username}', function (User $author) {
+
+    return view('posts', [
+        'posts' => $author->posts->load(['category', 'author'])
+    ]);
+});
+```
+
+Ahora vemos como se corren muchos menos querys y la pagina tiene mejor respuesta
+
+![Alt text](image-85.png)
+
+Ahora vamos a ver una alternativa a este metodo que acabamos de utilizar
+
+Nos dirigimos a la clase Post y añadimos lo siguiente
+
+```php
+protected $with = ['category', 'author'];
+```
+
+Por lo que ahora no sería necesario el cambio que hicimos en web.php por lo que estas funciones quedarían así
+
+```php
+Route::get('/', function () {
+
+   return view('posts', [
+        'posts' => Post::latest()->get()
+    ]);
+});
+
+Route::get('categories/{category:slug}', function (Category $category) {
+
+    return view('posts', [
+        'posts' => $category->posts
+    ]);
+});
+
+Route::get('authors/{author:username}', function (User $author) {
+
+    return view('posts', [
+        'posts' => $author->posts
+    ]);
+});
+```
+
+Y vemos como igualmente se utilizan pocos querys
+
+![Alt text](image-86.png)
