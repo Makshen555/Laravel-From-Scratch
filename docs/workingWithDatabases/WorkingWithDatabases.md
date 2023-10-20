@@ -901,4 +901,154 @@ Ahora cada vez que creemos un post este va a crear un categoría generica y un u
 
 ## Ver todos los mensajes de un autor / View All Posts by An Author
 
+Cada vez que un post es creado este se va al final de la pagina, para corregir esto y tener los posts mas recientes primero, hacemos esta pequeña modificación en la ruta en ``web.php``
+
+```php
+Route::get('/', function () {
+
+   return view('posts', [
+        'posts' => Post::latest()->with('category')->get()
+    ]);
+});
+```
+
+Ahora cada post nuevo irá al principio de la pagina y no al final.
+
+Vamos a cambiar el codigo en post.blade.php para que el usuario no sea referenciado como tal si no como author entonces agregamos
+
+```php
+@extends('layouts.layout')
+
+@section ('content')
+    <article>
+
+        <h1> {!! $post->title !!} </h1>
+
+        <p>
+            By
+            <a href="#">{{$post->author->name}}</a>
+            in
+            <a href="/categories/{{ $post->category->slug }}"> {{ $post->category->name }} </a>
+        </p>
+
+        <div>
+            {!! $post->body !!}
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+@endsection
+```
+
+Y ahora nos dirigimos a la clase Post y cambiamos el codigo
+
+```php
+public function author() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+```
+
+Ahora vamos a agregar que se pueda observar el autor del post en la pagina principal, por lo que unicamente vamos a copiar este trozo de codigo de post.blade.php a posts.blade.php
+
+```php
+<p>
+    By
+    <a href="#">{{$post->author->name}}</a>
+    in
+    <a href="/categories/{{ $post->category->slug }}"> {{ $post->category->name }} </a>
+</p>
+```
+
+Ahora visualizamos la pagina principal
+
+![Alt text](image-80.png)
+
+El problema es que por cada post que tenemos que hace un select para llamar al autor y eso ralentiza la pagina, por loq ue lo solucionamos con los siguiente en web.php
+
+```php
+Route::get('/', function () {
+
+   return view('posts', [
+        'posts' => Post::latest()->with(['category', 'author'])->get()
+    ]);
+});
+```
+
+Y podemos visualizar que solos e utilizan 3 querys al momento de cargar la pagina principal
+
+![Alt text](image-81.png)
+
+Vamos a agregar una nueva columna en la migracion de user para poder tener username
+
+```php
+public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('username')->unique();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+    }
+```
+Luego modificamos el UserFactory para que al crear usuarios se cree el username
+
+```php
+public function definition()
+    {
+        return [
+            'name' => $this->faker->name(),
+            'username' => $this->faker->unique()->userName,
+            'email' => $this->faker->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+        ];
+    }
+```
+
+Ahora vamos a agregar una nueva ruta en web.php para poder acceder a los posts pertenecientes al mismo autor por medio del username
+
+```php
+Route::get('authors/{author:username}', function (User $author) {
+
+    return view('posts', [
+        'posts' => $author->posts
+    ]);
+});
+```
+Y modificamos el codigo en posts y post para que al darle click al autor este nos redirija a la pagina donde se encuentran todos sus posts
+
+```php
+@extends('layouts.layout')
+
+@section ('content')
+    <article>
+
+        <h1> {!! $post->title !!} </h1>
+
+        <p>
+            By
+            <a href="/authors/{{$post->author->username}}">{{$post->author->name}}</a>
+            in
+            <a href="/categories/{{ $post->category->slug }}"> {{ $post->category->name }} </a>
+        </p>
+
+        <div>
+            {!! $post->body !!}
+        </div>
+
+    </article>
+
+    <a href="/">Volver</a>
+@endsection
+```
+
+Ahora podemos visualizar los posts de un mismo autor
+
 ## Relaciones de carga ansiosas en un modelo existente / Eager Load Relationships on an Existing Model
