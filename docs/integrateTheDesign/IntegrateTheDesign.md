@@ -425,3 +425,5 @@ Esta sería la manera de llamar a este componente
 ```
 
 ## Tweeks rápidos y limpieza / Quick Tweeks and Clean-Up
+
+Agregamos ciertos cambios pequeños en el css de varios archivos para que la pagina se vea mucho mas limpia, nada fuera de lo normal.
