@@ -10,15 +10,12 @@
         <div class="flex-1 flex flex-col justify-between">
             <header class="mt-8 lg:mt-0">
                 <div class="space-x-2">
-                    <a href="/categories/{{ $post->category->slug }}"
-                       class="px-3 py-1 border border-blue-300 rounded-full text-blue-300 text-xs uppercase font-semibold"
-                       style="font-size: 10px">{{ $post->category->name }}</a>
+                    <x-category-buttom :category="$post->category"/>
                 </div>
 
                 <div class="mt-4">
                     <h1 class="text-3xl">
-                        <a href="/posts/{{$post->slug}}"></a>
-                        {{$post->title}}
+                        <a href="/posts/{{$post->slug}}">{{$post->title}}</a>
                     </h1>
 
                     <span class="mt-2 block text-gray-400 text-xs">

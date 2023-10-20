@@ -274,10 +274,18 @@ Y al final posts os quedaría de esta manerea
         @endif
     </main>
 </x-layout>
-
 ```
 
 ## Convertir la página de publicación del blog / Convert the Blog Post Page
+
+Vamos a copiar el HTML del archivo posts que esta en el mismo repositorio que el anterior, vamos a pegar este codigo en post.blade.php y vamos a modificarlo para volverlo dinamico.
+
+Creamos un nuevo componente llamado `category-buttom.blade.php` el cual se encargará de la información de las categorías
+![Alt text](image-4.png)
+
+Y ahora con los cambios en los componentes y en la vista de post podemos visualizar como nuestro post se vuelve dinamico
+
+![Alt text](image-5.png)
 
 ## Un pequeño desvío del menú desplegable de JavaScript / A Small JavaScript Dropdown Detour
 
