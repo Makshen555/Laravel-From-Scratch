@@ -828,6 +828,77 @@ Y vemos como nuestro post ahora tiene el nombre de su usuario
 
 ## Turbo Boost con fábricas / Turbo Boost With Factories
 
+Ahora vamos a crear un PostFactory para poder crear posts con sus respectivos atributoa aleatoriamente dentro del DataSeeder
+
+Nos vamos a nuestra terminal y corremos el comando 
+
+```php
+php artisan make:factory PostFactory
+
+```
+
+Esto nos creará este archivo
+
+![Alt text](image-75.png)
+
+Dentro del folder ``PostFactory``
+
+Vamos a añadir el siguiente codigo
+
+```php
+public function definition()
+    {
+        return [
+            'user_id' => User::factory(),
+            'category_id' => Category::factory(),
+            'title' => $this->faker->sentence,
+            'slug' => $this->faker->slug,
+            'excerpt' => $this->faker->sentence,
+            'body' => $this->faker->sentence,
+        ];
+    }
+```
+
+Hacemos el mismo proceso para factory
+
+![Alt text](image-76.png)
+
+![Alt text](image-77.png)
+    
+```php
+public function definition()
+    {
+        return [
+            'name' => $this->faker->word,
+            'slug' => $this->faker->slug()
+        ];
+    }
+```
+
+Ahora probamos a crear un post utilizndo factory()
+
+![Alt text](image-78.png)
+
+Como podemos ver funciona a la perfeccion
+
+Ahora vamos a limpiar el codigo en el DataSeeder para ahora utilizar factory()
+
+```php
+public function run()
+    {
+
+        User::truncate();
+        Category::truncate();
+        Post::truncate();
+
+        Post::factory()->create();
+    }
+```
+
+Ahora cada vez que creemos un post este va a crear un categoría generica y un usuario generico
+
+![Alt text](image-79.png)
+
 ## Ver todos los mensajes de un autor / View All Posts by An Author
 
 ## Relaciones de carga ansiosas en un modelo existente / Eager Load Relationships on an Existing Model
