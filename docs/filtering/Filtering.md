@@ -253,10 +253,43 @@ Iremos a _header y modificamos
                 >
             </form>
 ```
+Como podemos ver en la imagen ambos filtros se estan aplicando en el query string
 
-Ahora haremos que funciona al reves, si hay una palabra filtrada y queremos filtrar tambien por avtegoría lo podamos hacer
+![Alt text](image-6.png)
 
+Ahora haremos que funciona al reves, si hay una palabra filtrada y queremos filtrar tambien por categoría lo podamos hacer, para esto vamos a la vista categor-dropdown nuestro 
 
+```php
+<x-dropdown-item
+        href="/?category={{ $category->slug }}&{{ http_build_query(request()->except('category')) }}"
+        :active="request()->is('categories/' . $category->slug)"
+    >{{ ucwords($category->name) }}
+</x-dropdown-item>
+```
 
+## Corregir un error de consulta elocuente y confuso / Fix a Confusing Eloquent Query Bug
 
-##
+Hay un pequeño bug en el query que solicionamos de esta manera, vamos a la clase Post y modificamos
+
+```php
+public function scopeFilter($query, array $filters) {
+        $query->when($filters['search'] ?? false, fn($query, $search) =>
+            $query->where(fn($query) =>
+            $query->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('body', 'like', '%' . $search . '%')
+        ));
+
+        $query->when($filters['category'] ?? false, fn($query, $category) =>
+            $query
+                ->whereHas('category', fn ($query) =>
+                    $query->where('slug', $category)
+                )
+        );
+        $query->when($filters['author'] ?? false, fn($query, $author) =>
+        $query
+            ->whereHas('author', fn ($query) =>
+            $query->where('username', $author)
+            )
+        );
+    }
+```
