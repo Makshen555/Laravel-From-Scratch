@@ -58,3 +58,31 @@ Ahora vamos a nuestra pagina web a crear un usuario por medio del formulario ant
 ![Alt text](image-2.png)
 
 Como vemos el usuario se crea, pero este se crea con ciertos errores, pero esto lo arreglaremos en el siguiente video
+
+## Hashing automático de contraseñas con mutadores / Automatic Password Hashing with mutators
+
+Agregamos lo siguiente en la funcion store() en RegisterController
+
+```php
+public function store() {
+        $attributes = request()->validate([
+            'name' => 'required|max:255',
+            'username' => 'required|max:255|min:3',
+            'email' => 'required|email|max:255',
+            'password' => 'required|min:7|max:255',
+        ]);
+
+        $attributes ['password'] = bcrypt($attributes ['password']);
+        User::create($attributes);
+
+        return redirect('/');
+    }
+```
+
+Otra manera de ocultar el password dentro de la base de datos sería con un mutator en el modelo User.php
+
+```php
+public function setPasswordAttribute($password) {
+    $this->attributes['password'] = bcrypt($password);
+}
+```
