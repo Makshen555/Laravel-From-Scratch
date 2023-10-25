@@ -232,10 +232,31 @@ Route::get('/', [PostController::class, 'index'])->name('home');
 Route::get('posts/{post}', [PostController::class, 'show']);
 ```
 
-##
+## Fusionar categorías y consultas de búsqueda / Merge Category and Search Queries
 
-##
+Cuando buscamos por medio de categorías y luego aplicamos el filtro de palabras este ultimo nos borra la categoría que escogimos, por lo que el filtro buscaría las palabras en todas las categorías, para solucionar eso haremos lo siguiente
 
-##
+Iremos a _header y modificamos
+
+```php
+<!-- Search -->
+        <div class="relative flex lg:inline-flex items-center bg-gray-100 rounded-xl px-3 py-2">
+            <form method="GET" action="/">
+                @if(request('category'))
+                    <input type="hidden" name="category" value="{{ request('category' )}}">
+                @endif
+                <input
+                    type="text"
+                    name="search" placeholder="Find something"
+                    class="bg-transparent placeholder-black font-semibold text-sm"
+                    value="{{ request('search' ) }}"
+                >
+            </form>
+```
+
+Ahora haremos que funciona al reves, si hay una palabra filtrada y queremos filtrar tambien por avtegoría lo podamos hacer
+
+
+
 
 ##
