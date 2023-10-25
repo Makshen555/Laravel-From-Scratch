@@ -166,7 +166,71 @@ Dentro de la carpeta _resources/views_ vamos a crar una carpeta llamada posts pa
 
 Esto para que se llamen como sus respectivas funciones dentro del PostControllerS
 
-##
+## Filtro de autores / Author Filtering
+
+Lo primero qur haremos será ir a post-card y post-featured-card buscar donse se carga el nombre del autor para coonvertirlo en un link 
+
+```php
+<h5 class="font-bold">
+<a href="/authors/{{ $post->author->username }}">{{ $post->author->name }}</a>
+</h5>
+```
+
+Luego en el archivo de rutas modificamos lo cambiado anteriormente en PostController
+
+```php
+Route::get('authors/{author:username}', function (User $author) {
+
+    return view('posts.index', [
+        'posts' => $author->posts
+    ]);
+});
+```
+
+Vemos en la web como la darle click al autor nos lleva a una pagina donde están los posts de ese mismo autor
+
+![Alt text](image-4.png)
+
+Ahora nos movemos a la clase post para añadir el autor en la funcion filter para posteiormente poder buscar de la misma manera en la que lo hacemos con las categorias
+
+```php
+$query->when($filters['author'] ?? false, fn($query, $author) =>
+    $query
+        ->whereHas('author', fn ($query) =>
+        $query->where('username', $author)
+    )
+);
+```
+
+Luego en PostController también agregamos el autor,al igual que lo hicimos con las palabras y las categorias
+
+```php
+public function index() {
+    return view('posts.index', [
+        'posts' => Post::latest()->filter(request(['search', 'category', 'author']))->get()
+    ]);
+}
+```
+
+Luego vamos a la web e intentamos buscar por medio del query de la URL
+
+![Alt text](image-5.png)
+
+Iremos a la vista show para que al ingresar al post el nombre del autor también sea un link que nos redirija a los posts de ese autor
+
+Modificamos el url para que busque de la misma manera ne la que lo hacemos con las palabras y las categorias
+
+<h5 class="font-bold">
+<a href="/?author={{ $post->author->username }}">{{ $post->author->name }}</a>
+</h5>
+
+Y por ultimo eliminamos el endpoint de authors que tenemos en nuestro archivo de rutas ya que no lo necesitaremos
+
+```php
+Route::get('/', [PostController::class, 'index'])->name('home');
+
+Route::get('posts/{post}', [PostController::class, 'show']);
+```
 
 ##
 
