@@ -100,3 +100,78 @@ Route::get('authors/{author:username}', function (User $author) {
     ]);
 });
 ```
+
+## Extraer un componente de hoja desplegable de categoría / Extract a Category Dropdown Blade Component
+
+Lo primero que haremos será crear un nuevo componente llamado `category-dropdown` lo podemos crear de la siguiente manera desde la terminal de nuestra VM webserver en la ruta de nuestro proyecto
+
+```bash
+php artisan make:component CategoryDropdown
+```
+
+Pegamos toda la logica del dropdown dentro de este nuevo componente
+
+Dentro de _app/View/Components_ se creó un nuevo componente al que agregaremos el siguiente codigo
+
+```php
+public function render()
+    {
+        return view('components.category-dropdown', [
+            'categories' => Category::all()
+        ]);
+    }
+```
+
+Modificamos le archivo web.php ya que mo necesitamos pasar las categorias por la ruta
+
+```php
+Route::get('/', [PostController::class, 'index'])->name('home');
+
+Route::get('posts/{post}', [PostController::class, 'show']);
+
+Route::get('authors/{author:username}', function (User $author) {
+
+    return view('posts', [
+        'posts' => $author->posts
+    ]);
+});
+```
+
+Y en PostController modificamos también
+
+```php
+public function index() {
+
+    return view('posts', [
+        'posts' => Post::latest()->filter(request(['search', 'category']))->get()
+    ]);
+}
+```
+
+Movemos el trozo de codigo de que eliminamos de PostController y lo movemos al componente de CategoryDropdown ya que esté será quien se encargue de las categorias
+
+```php
+public function render()
+    {
+        return view('components.category-dropdown', [
+            'categories' => Category::all(),
+            'currentCategory' => Category::firstWhere('slug', request('category'))
+        ]);
+    }
+```
+
+Dentro de la carpeta _resources/views_ vamos a crar una carpeta llamada posts parar guardar las vistas de los post y renombramos las vistas
+
+![Alt text](image-3.png)
+
+Esto para que se llamen como sus respectivas funciones dentro del PostControllerS
+
+##
+
+##
+
+##
+
+##
+
+##

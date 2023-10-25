@@ -554,7 +554,7 @@ Revisamospor  en la terminal como funciona esta nueva función
 Ahora modificamos las vistas para poder cargar las categorias por medio del slug y no del id
 
 ```php
-//post.blade.php
+//show.blade.php
 @extends('layouts.layout')
 
 @section ('content')
@@ -577,7 +577,7 @@ Ahora modificamos las vistas para poder cargar las categorias por medio del slug
 ```
 
 ```php
-//posts.blade.php
+//index.blade.php
 @extends('layouts.layout')
 
 @section('content')
