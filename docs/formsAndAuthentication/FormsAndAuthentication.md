@@ -86,3 +86,42 @@ public function setPasswordAttribute($password) {
     $this->attributes['password'] = bcrypt($password);
 }
 ```
+
+## Validación fallida y datos de entrada antiguos / Failed Validation and Old Input Data
+
+Vamos a crear un mensaje de validacion fallida para el form de registrar en la vista create
+
+```php
+@error('name')
+    <p class="text-red-500 text-xs mt-1">{{ message }}</p>
+@enderror
+```
+
+Al salir este error se nos eliminan los campos que si son validos en el formulario, por loq ue agregamos lo siguiente para mantener el texto
+
+```php
+value="{{old('name')}}"
+```
+
+Esto lo agregamos en todo los campos menos el de la contraseña
+
+Como vemos al no validar los datos nos sale el error y nos mantiene la informacion en el formulario
+
+![Alt text](image-3.png)
+
+Si queremos ingresar un username o un email que ya se encuentra en la base de datos, el programa detactará un error y dejrá de compilar, por lo que lo que debemos hacer es lo siguiente.
+
+```php
+    public function store() {
+        $attributes = request()->validate([
+            'name' => 'required|max:255',
+            'username' => 'required|min:3|max:255|unique:users,username',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|min:7|max:255',
+        ]);
+        User::create($attributes);
+        return redirect('/');
+    }
+```
+
+![Alt text](image-4.png)
