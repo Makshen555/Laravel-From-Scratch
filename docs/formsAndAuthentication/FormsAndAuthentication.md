@@ -125,3 +125,67 @@ Si queremos ingresar un username o un email que ya se encuentra en la base de da
 ```
 
 ![Alt text](image-4.png)
+
+## Mostrar un mensaje flash de éxito / Show a Success Flash Message
+
+Al crear un usuario nuevo la pagina solo nos redirecciona a la home page, po lo que crearemos un nuevo mensaje que nos advierta si el usuario fue creado exitosamente
+
+Nos vamos a RegisterController y creamos lo siguiente
+
+```php
+session()->flash('success', 'Your account has been created.')
+```
+
+Luego dentro de la vista layout vamos a añadir lo siguiente antes de la ultima etiqueta del body
+
+```php
+@if(session()->has('success'))
+    <div>
+        <p>{{ session('success') }}</p>
+    </div>
+@endif
+```
+
+![Alt text](image-5.png)
+
+Como podemos ver al final de la pagina se imprime que nuestra cuenta ha sido creada
+
+Al saber qu esto funciona vamos a estilizarlo y añadir un poco de JS para que se cree un mensaje flash
+
+```php
+@if(session()->has('success'))
+    <div x-data="{ show: true}"
+         x-init="setTimeout(() => show = false, 4000)"
+         x-show="show"
+         class="fixed bg-blue-500 text-white py-2 px-4 rounded-xl bottom-3 right-3 text-sm"
+    >
+        <p>{{ session('success') }}</p>
+    </div>
+@endif
+```
+
+Nos vamos a llevar este codigo para crear un nuevo componente blade llamado flash
+
+![Alt text](image-6.png)
+
+Al final nuestra funcion store() quedará de esta forma
+
+```php
+public function store() {
+    $attributes = request()->validate([
+        'name' => 'required|max:255',
+        'username' => 'required|min:3|max:255|unique:users,username',
+        'email' => 'required|email|max:255|unique:users,email',
+        'password' => 'required|min:7|max:255',
+    ]);
+    User::create($attributes);
+
+     return redirect('/')->with('success', 'Your account has been created.');;
+}
+```
+
+##
+
+##
+
+##
