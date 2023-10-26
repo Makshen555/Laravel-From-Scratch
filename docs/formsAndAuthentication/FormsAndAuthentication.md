@@ -184,8 +184,123 @@ public function store() {
 }
 ```
 
-##
+## Iniciar y cerrrar sesión / Login and Logout
+
+Antes de iniciar con el login lo que vamos a hacer es crear un botón o algo que podamos clickear para redirigirnos a la pagina de registrar, nos vamos a layout y cambiamos el boton de Home Page por Register
+
+```php
+<a href="/register" class="text-xs font-bold uppercase">Register</a>
+```
+
+Ahora nos dirigimos a RegisterController para empezar a crear el login
+
+```php
+    public function store() {
+        $attributes = request()->validate([
+            'name' => 'required|max:255',
+            'username' => 'required|min:3|max:255|unique:users,username',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|min:7|max:255',
+        ]);
+        $user = User::create($attributes);
+        auth()->login($user);
+        return redirect('/')->with('success', 'Your account has been created.');;
+    }
+```
+
+Ahora nos vamos al archivo de rutas y editamos
+
+```php
+Route::get('register', [RegisterController::Class, 'create'])->middleware('guest');
+Route::post('register', [RegisterController::Class, 'store'])->middleware('guest');
+```
+
+Para que esto funcione tenemos que editar la ruta en RouteServiceProvider.php de lo contrario nos redigirá a una ruta inexistente
+
+```php
+public const HOME = '/';
+```
+
+Vamos a layout y agregamos lo siguiente para que el link de register solo se muestre si no estan logueado
+
+```php
+@guest
+    <a href="/register" class="text-xs font-bold uppercase">Register</a>
+@endguest
+```
+
+Tambien puede ser de esta manera
+
+```php
+@unless
+    <a href="/register" class="text-xs font-bold uppercase">Register</a>
+@endunless
+```
+
+Pero lo vamos a utilizar de esta manera para saber cuando estamos logueados, cabe resaltar que al registrarnos en la pagina esta nos loguea automaticamente.
+
+```php
+@auth
+    <span class="text-xs font-bold uppercase"> Welcome {{ auth()->user()->name }}! </span>
+@else
+    <a href="/register" class="text-xs font-bold uppercase">Register</a>
+@endauth
+```
+
+![Alt text](image-7.png)
+
+Ahora vamos a crear el boton de logout
+
+```php
+@auth
+    <span class="text-xs font-bold uppercase"> Welcome {{ auth()->user()->name }}! </span>
+
+    <form method="POST" action="/logout" class="text-xs font-semibold text-blue-500 ml-6">
+        <button type="submit">Log Out</button>
+    </form>
+    @csrf
+
+@else
+    <a href="/register" class="text-xs font-bold uppercase">Register</a>
+ @endauth
+```
+
+Ahora creamos la ruta para que el logout funcione
+
+```php
+Route::post('logout', [SessionController::class, 'destroy']);
+```
+
+Ahora vamos a la terminal de la VM webserver a crear el nuevo SessionController
+
+```bash
+php artisan make:controller SessionController
+```
+
+![Alt text](image-8.png)
+
+Ahora dentro de este nuevo controller vamos a crear la funcion destroy()
+
+```php
+public function destroy() {
+    auth()->logout();
+    return redirect('/')->with('success', 'Goodbye!');
+}
+```
+
+Ahora vamos a crear el boton de login
+
+```php
+<a href="/login" class="ml-6 text-xs font-bold uppercase">Log In</a>
+
+```
+
+![Alt text](image-9.png)
 
 ##
+
+```php
+
+```
 
 ##
