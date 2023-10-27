@@ -386,6 +386,24 @@ session()->regenerate();
 
 ## Vistazo rápido de Laravel Breeze / Laravel Breeze Quick Peek
 
-```php
+Realizamos unos cambios en la funcions store() en SessionsController
 
+```php
+    public function store() {
+        $attributes = request()->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+        if (! auth()->attempt($attributes)) {
+            throw ValidationException::withMessages([
+                'email' => 'Your provided credentials could not be verified.'
+            ]);
+        }
+        session()->regenerate();
+        return redirect('/')->with('success', 'Welcome Back!');
+    }
 ```
+
+En el video Jeffrey nos enseña como crear un nuevo priyecto con laravel breeze, el cual es un framework de laravel que importa muchas funciones de autenticación, incluyendo inicio de sesión, registro, restablecimiento de contraseña, verificación de correo electrónico y confirmación de contraseña. Además, Breeze incluye una página de "perfil" sencilla donde el usuario puede actualizar su nombre, dirección de correo electrónico y contraseña.
+
+El mismo requiere de la utilizacion de composer y de NodeJS por lo que deben estar instalados en nuestro proyecto para que ste funcione.
