@@ -32,4 +32,17 @@ Asi se veria los comentarios de los posts dentro del post
 
 ![Alt text](image.png)
 
-## 
+## Consistencia de tablas y restricciones de clave externa / Table Consistency and Foreign Key Constraints
+
+Desde la terminal de la VM webserver vamos a crear un nuevo modelo y le vamos a agregar -mfc que significa
+- m = migration
+- f = factory
+- c = controller
+
+![Alt text](image-1.png)
+
+Ahora nos dirigimos a la migracion de Comment para modificarla con las columnas que queremos que lleva la tabla
+
+```php
+
+```
