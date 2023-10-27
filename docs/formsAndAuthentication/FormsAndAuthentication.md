@@ -297,10 +297,95 @@ Ahora vamos a crear el boton de login
 
 ![Alt text](image-9.png)
 
-##
+## Construir la pagina de iniciar sesion / Build the Log In Page
+
+Lo primero será crear la ruta en web.php
+
+```php
+Route::post('login', [SessionController::class, 'create'])->middleware('guest');
+```
+
+Luego de esto le agregamos el middleware a logout para que solo si tienes sesion iniciada puedan acceder
+
+```php
+Route::post('logout', [SessionController::class, 'destroy'])->middleware('auth');
+```
+
+Ahora nos vamos a SessionController a crear una nueva funcion llamada create()
+
+```php
+public function create() {
+    return view('sessions.create');
+}
+```
+
+Y ahora creamos en _resources/view_ creamos un nuevo folder llamado sessions y ahí creamos la vista create
+
+![Alt text](image-10.png)
+
+E ingresamos parte del codigo de la vista register
+
+```php
+<x-layout>
+    <section class="px-6 py-8">
+        <main class="max-w-lg mx-auto mt-10 bg-gray-100 border border-gray-200 p-6 rounded-xl"  >
+            <h1 class="text-center font-bold text-xl">Log In!</h1>
+        </main>
+    </section>
+</x-layout>
+```
+
+Ademas de esto también copiamos parte del codigo del form de register pero eliminamos la parte del username y el name, unicamente necesitamos email y password
+
+Y así se veria la pagina de login
+
+![Alt text](image-11.png)
+
+Ahora creamos una ruta a la que enviaremos el post de los datos del login
+
+```php
+Route::post('login', [SessionController::class, 'store'])->middleware('guest');
+```
+
+Ahora creamos el nuevo metodo store()
+
+```php
+    public function store() {
+        $attributes = request()->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+        if (auth()->attempt($attributes)) {
+            return redirect('/')->with('success', 'Welcome Back!');
+        }
+        return back()
+            ->withInput()
+            ->withErrors(['email' => 'Your provided credentials could not be verified.']);
+    }
+```
+
+Otra manera de validar los errores es la siguiente
+
+```php
+throw ValidationException::withMessages([
+    'email' => 'Your provided credentials could not be verified.'
+]);
+```
+
+Ahora nos logueamos para verificar que todo funcione
+
+![Alt text](image-12.png)
+
+Y vemos como ingresa nuestro nombre en la pagina
+
+Lo ultimo será ingresar esta linea en el if de la funcion store(), esto para regenerar la session del usuario que se está loguando y así evitar ataques
+
+```php
+session()->regenerate();
+```
+
+## Vistazo rápido de Laravel Breeze / Laravel Breeze Quick Peek
 
 ```php
 
 ```
-
-##
