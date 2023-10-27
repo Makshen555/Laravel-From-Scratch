@@ -44,5 +44,78 @@ Desde la terminal de la VM webserver vamos a crear un nuevo modelo y le vamos a 
 Ahora nos dirigimos a la migracion de Comment para modificarla con las columnas que queremos que lleva la tabla
 
 ```php
+    Schema::create('comments', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+        $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+        $table->unsignedBigInteger('user_id');
+        $table->text('body');
+        $table->timestamps();
+    });
+```
+
+Nos movemos a la terminal de la VM webserver y corremos el comando para migrar la tabla a la base de datos
+```bash
+php artisan migrate
+```
+
+![Alt text](image-2.png)
+
+## Hacer que los comentarios sean dinamicos / Make the Comments Section Dynamic
+
+Editamos la fabrica de comments para que se creem los datos de la forma que queremos dentro de la base de datos
+
+```php
+public function definition()
+    {
+        return [
+            'name' => $this->faker->word(),
+            'slug' => $this->faker->slug()
+        ];
+    }
+```
+Nos movemos a la terminal de la Vm webserver para crear un comment con los comandos
+
+```bash
+php artisan tinker
+App\Models\Comment::factory()->create();
+```
+
+![Alt text](image-3.png)
+
+Ahora despues de crear el comment vamos a el modelo Post para agregar la relacion con el comment
+
+```php
+public function comments() {
+    return $this->hasMany(Comment::class);
+}
+```
+
+Ahora vamos al modelo Comment y creamos las relaciones con Post y Author
+
+```php
+public function post() {
+    return $this->belongsTo(Post::class);
+}
+public function author() {
+    return $this->belongsTo(User::class, 'user_id');
+}
+```
+
+Y vemos como tiene relacion con el Post 
+
+![Alt text](image-4.png)
+
+Ahora nos dirigimos a la vista show para emepezar con los comentarios dinamicos, el primer cambio que haremos sera este
+
+```php
+@foreach($post->comments as $comment)
+    <x-post-comment :comment="$comment" />
+@endforeach
+```
+
+Ahora nos vamos al componente post-comment
+
+```php
 
 ```
