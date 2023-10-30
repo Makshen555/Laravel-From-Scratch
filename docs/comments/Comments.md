@@ -117,5 +117,80 @@ Ahora nos dirigimos a la vista show para emepezar con los comentarios dinamicos,
 Ahora nos vamos al componente post-comment
 
 ```php
-
+@props()
+<article class="flex bg-gray-100 border border-gray-200 p-6 rounded-xl space-x-4">
+    <div class="flex-shrink-0">
+        <img src="https://i.pravatar.cc/" alt="" width="60" height="60" class="rounded-xl">
+    </div>
+    <div>
+        <header>
+            <h3 class="fonr-bold">{{ $comment->author->username }}</h3>
+            <p class="text-xs">
+                Posted
+                <time>{{ $comment->created_at }}</time>
+            </p>
+        </header>
+        <p> {{ $comment->body }} </p>
+    </div>
+</article>
 ```
+
+Y vemos como dentro de la web tenemos un coe=mentario dinamico
+
+![Alt text](image-5.png)
+
+## Disennar el formulario para comentarios / Design the Comment Form
+
+Lo primero sera ir a la vista show y crear un form ahi que sera donde se ingresen los comentarios
+
+```php
+                    <form action="POST" action="#" class="border border-gray-200 p-6 rounded-xl">
+                        @csrf
+                        <header class="flex items-center">
+                            <img src="https://i.pravatar.cc/?iu={{ auth()->id() }}" alt="" width="60" height="60" class="rounded-xl">
+                            <h2 class="ml-4">Want to participate?</h2>
+                        </header>
+                        <div class="mt-6">
+                            <textarea name="body" class="w-full text-sm focus:outline-none focus:ring" rows="5" placeholder="Quick, thing of something to say"/>
+                        </div>
+                        <div class="flex justify-end mt-6 pt-6 border-t border-gray-200">
+                            <button type="submit" class="bg-blue-500 text-white uppercase font-semibold text-xs py-2 px-10 rounded-2xl hover:bg-blue-600"/>
+                        </div>
+                    </form>
+```
+
+Ahora creamos un componente al que llamaremos panel y le ponemos este codigo
+
+```php
+<div class="border border-gray-200 p-6 rounded-xl">
+    {{ $slot }}
+</div>
+```
+
+Y al codigo anterior lo metemos entre las etiquetas `<x-panel>`
+
+El codigo de post-comment tambien lo metemos entre esas mismas etiquetas
+```php
+<x-panel class="bg-gray-50">
+    <article class="flex bg-gray-100 border border-gray-200 p-6 rounded-xl space-x-4">
+        <div class="flex-shrink-0">
+            <img src="https://i.pravatar.cc/?iu={{ $comment->id }}" alt="" width="60" height="60" class="rounded-xl">
+        </div>
+        <div>
+            <header>
+                <h3 class="fonr-bold">{{ $comment->author->username }}</h3>
+                <p class="text-xs">
+                    Posted
+                    <time>{{ $comment->created_at }}</time>
+                </p>
+            </header>
+            <p> {{ $comment->body }} </p>
+        </div>
+    </article>
+</x-panel>
+```
+Por ultimo, asi quedaria el form estilizado.
+
+![Alt text](image-6.png)
+
+## 
