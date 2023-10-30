@@ -193,4 +193,62 @@ Por ultimo, asi quedaria el form estilizado.
 
 ![Alt text](image-6.png)
 
-## 
+## Activar el formulario de comentarios / Activate the Comment Form
+
+Annadimos una nueva endpoint en `web.php` para poder agregar los comentarios
+
+```php
+Route::post('posts/{post:slug}/comments', [PostCommentController::class, 'store']);
+```
+
+Vamos a crear un nuevo controller con el nombre que le dimos en el endpoint
+
+```bash
+php artisan make:controller PostCommentsController
+```
+
+![Alt text](image-7.png)
+
+En la vista show, actualizamos esta linea
+
+```php
+<form action="POST" action="/posts/{{ $post->slug }}/comments">
+```
+
+Ahora dentro de este nuevo controller creamos lo necesario para que el form funcione
+
+```php
+public function store(Post $post) {
+    request()->validate([
+       'body' => 'required'
+    ]);
+    $post->comments()->create([
+        'user_id' => request()->user()->id,
+        'body' => request('body')
+    ]);
+    return back();
+}
+```
+
+Esto nos dara un error y para resolverlo lo que tendremos que hacer es annadir esta linea de codigo al Model de Comment
+
+```php
+protected $guarded = [];
+```
+
+Tambien se puede hacer de la siguiente forma, vamos a la ruta _/app/Providers/_ y al archivo `AppServiceProviders` y en la funcion `boot()` agregamos
+
+```php
+Model::unguard();
+```
+Y asi se verian los comentarios de los post 
+
+![Alt text](image-8.png)
+
+Ahora que haremos sera una condicional para evitar que personas que no se encuentran logueadas puedan escribir comentarios, ya que si lo hacen la pagina se cae. Para esto lo que haremos sera mete toda la logica de la vista del form de comentarios dentro de un `@auth` y agregar un link para loguearse en la seccion de comentarios.
+
+```php
+<a href="/register" class="hover:underline">Register</a> or <a href="/login" class="hover:underline">log in </a> to leave a comment.
+```
+
+## Un poco de limpieza del capítulo / Some Light Chapter Clean Up
