@@ -24,3 +24,12 @@ Segundo avance del proyeto #1 de Aplicaciones web con Software Libre.
 - [Filtering](./docs/filtering/Filtering.md)
 - [Pagination](./docs/pagination/Pagination.md)
 - [Forms and Authentication](./docs/formsAndAuthentication/FormsAndAuthentication.md)
+
+## Avance #3
+Tercer y ultimo avance del proyeto #2 de Aplicaciones web con Software Libre.
+
+## Rutas de los Modulos del Avance #3
+
+- [Comments](./docs/comments/Comments.md)
+- [Newspaper and APIs](./docs/newspaperAndAPIs/NewspaperAndAPIs.md)
+- [Admin Section](./docs/adminSection/AdminSection.md)

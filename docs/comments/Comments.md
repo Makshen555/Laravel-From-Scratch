@@ -266,4 +266,3 @@ Extraemos el codigo del form de comentarios y lo annadimos a una nueva vista que
 ![Alt text](image-9.png)
 
 Extraemos el boton de add-comment, para nada mas llamarlo la proxima vez que necesitemos un boton, por lo que crearemos un nuevo componente llamado `submit-buttom.blade.php`
-
