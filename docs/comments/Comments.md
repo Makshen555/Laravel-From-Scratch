@@ -252,3 +252,18 @@ Ahora que haremos sera una condicional para evitar que personas que no se encuen
 ```
 
 ## Un poco de limpieza del capítulo / Some Light Chapter Clean Up
+
+Agregamos mensaje de error en caso de que sea un comentario vacio 
+
+```php
+@error('body')
+    <span class="text-xs text-red-500">{{ $message }}</span>
+@enderror
+```
+
+Extraemos el codigo del form de comentarios y lo annadimos a una nueva vista que crearemos para este, el cual se llamara `add-comment-form`, lo llamaremos dentro de la vista show con `@include`
+
+![Alt text](image-9.png)
+
+Extraemos el boton de add-comment, para nada mas llamarlo la proxima vez que necesitemos un boton, por lo que crearemos un nuevo componente llamado `submit-buttom.blade.php`
+
