@@ -151,7 +151,7 @@ El formulario no acepta cualquier email, por loq ue agregamos al codigo de arrib
 
 ![Alt text](image-9.png)
 
-## Extraer el servicio de peridico / Extract a Newsletter Service
+## Extraer el servicio de periodico / Extract a Newsletter Service
 
 Creamos un nuevo folder que llamaremos services, en el que creamos una calse llamada Newsletter, en la cual pondremos todo el servicio del Newsletter
 
@@ -232,7 +232,7 @@ Route::post('newsletter', NewsletterController::class);
 Nos vamos a la consola de la VM webserver a crar el nuevo controller
 
 ```bash
-php artisan make:controller NewsletterController
+php artisan make:controller NewsletterController --invokable
 ```
 
 Asi quedaria el codigo en el nuevo controller 
@@ -254,3 +254,78 @@ public function __invoke(Newsletter $newsletter)
             ->with('success', 'You are now signed up for our newsletter!');
     }
 ```
+
+## Cofres de juguetes y contratos / Toy Chests and Contracts
+
+Nos vamos a la clase Newsletter y editamos
+
+```php
+    public function __constructor(protected ApiClient $client, protected string $foo)
+    {
+        //
+    }
+    public function subscribe(string $email, string $list = null) {
+        $list ??= config('services.mailchimp.lists.subscribers');
+
+        return $this->client()->lists->addListMember($list, [
+            'email_address' => $email,
+            'status' => 'suscribed'
+        ]);
+    }
+    protected function client() {
+        return $this->client()->setConfig([
+            'apiKey' => config('services.mailchimp.key'),
+            'server' => 'us14'
+        ]);
+    }
+```
+
+Ahora nos vamos al archivo `AppServiceProvider`, y pegamos dentro de la funcion register el siguiente codigo
+
+```php
+    public function register()
+    {
+        app()->bind(Newsletter::class, function () {
+            $client = (new ApiClient)->setConfig([
+                'apiKey' => config('services.mailchimp.key'),
+                'server' => 'us14'
+            ]);
+            return new Newsletter($client);
+        });
+    }
+```
+
+Cambiamos el nombre de la clase Newsletter a MailchimpNewsletter
+
+![Alt text](image-11.png)
+
+Creamos otra nueva clase llamada ConvertKitNewsletter y una interfaz llamada Newsletter
+
+Copiamos esto en la nueva interfaz 
+
+```php
+public function subscribe(string $email, string $list = null);
+```
+
+Agregamos tanto a MailchimpNewsletter como a ConvertKitNewsletter lo siguiente luego del nombre de la clase
+
+```php
+implements Newsletter
+```
+
+El codigo en AppServiceprovider quedaria asi
+
+```php
+public function register()
+    {
+        app()->bind(Newsletter::class, function () {
+            $client = (new ApiClient)->setConfig([
+                'apiKey' => config('services.mailchimp.key'),
+                'server' => 'us14'
+            ]);
+            return new MailchimpNewsletter($client);
+        });
+    }
+```
+
+Ademas de esto debemos importar tanto la interfaz Newsletter como la clase MailchimpNewsletter donde sea necesario
