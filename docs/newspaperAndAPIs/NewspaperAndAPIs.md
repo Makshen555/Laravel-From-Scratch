@@ -151,4 +151,106 @@ El formulario no acepta cualquier email, por loq ue agregamos al codigo de arrib
 
 ![Alt text](image-9.png)
 
-##
+## Extraer el servicio de peridico / Extract a Newsletter Service
+
+Creamos un nuevo folder que llamaremos services, en el que creamos una calse llamada Newsletter, en la cual pondremos todo el servicio del Newsletter
+
+![Alt text](image-10.png)
+
+Y annadimos la siguiente funcion
+
+```php
+public function subscribe(string $email) {
+        $mailchimp = new \MailchimpMarketing\ApiClient();
+
+        $mailchimp->setConfig([
+            'apiKey' => config('services.mailchimp.key'),
+            'server' => 'us14'
+        ]);
+
+        return @$mailchimp->lists->addListMember('9b3f6bdc7d', [
+            'email_address' => request('email'),
+            'status' => 'suscribed'
+        ]);
+    }
+```
+
+El endpoint quedaria de esta manera
+
+```php
+Route::post('newsletter', function () {
+    request()->validate(['email'=>'required|email']);
+
+    try {
+        (new Newsletter())->subscribe(request('email'));
+    }
+    catch (\Exception $e) {
+        throw ValidationException::withMessages([
+           'email' => 'This email could not be added to our newsletter list'
+        ]);
+    }
+    return redirect('/')->with('success', 'You are now signed op for our newsletter');
+});
+```
+
+Nos vamos al archivo services.php que esta en la ruta config y ahi editamos
+
+```php
+'mailchimp' => [
+    'key' => env('MAILCHIMP_KEY'),
+    'lists' => [
+        'subscribers' => env('MAILCHIMP_LISTS_SUBSCRIBERS')
+    ]
+]
+```
+
+Asi quedaria la clase de Newsletter
+
+```php
+public function subscribe(string $email, string $list = null) {
+    $list ??= config('services.mailchimp.lists.subscribers');
+    return $this->client()->lists->addListMember($list, [
+        'email_address' => request('email'),
+        'status' => 'suscribed'
+    ]);
+}
+public function client() {
+    $mailchimp = new \MailchimpMarketing\ApiClient();
+    $mailchimp->setConfig([
+        'apiKey' => config('services.mailchimp.key'),
+        'server' => 'us14'
+    ]);
+}
+```
+
+Y asi quedaria el endpoint
+
+```php
+Route::post('newsletter', NewsletterController::class);
+```
+
+Nos vamos a la consola de la VM webserver a crar el nuevo controller
+
+```bash
+php artisan make:controller NewsletterController
+```
+
+Asi quedaria el codigo en el nuevo controller 
+
+```php
+public function __invoke(Newsletter $newsletter)
+    {
+        request()->validate(['email' => 'required|email']);
+
+        try {
+            $newsletter->subscribe(request('email'));
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'email' => 'This email could not be added to our newsletter list.'
+            ]);
+        }
+
+        return redirect('/')
+            ->with('success', 'You are now signed up for our newsletter!');
+    }
+```
