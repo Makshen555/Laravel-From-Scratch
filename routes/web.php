@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use \Spatie\YamlFrontMatter\YamlFrontMatter;
 
-Route::get('ping', function () {
+Route::post('newsletter', function () {
     $mailchimp = new \MailchimpMarketing\ApiClient();
 
     $mailchimp->setConfig([
@@ -18,11 +18,19 @@ Route::get('ping', function () {
         'server' => 'us14'
     ]);
 
-    $response = $mailchimp->lists->addListMember('9b3f6bdc7d', [
-        'email_address' => 'luis@gmail.com',
-        'status' => 'suscribed'
-    ]);
-    ddd($response);
+    try {
+        $response = $mailchimp->lists->addListMember('9b3f6bdc7d', [
+            'email_address' => request('email'),
+            'status' => 'suscribed'
+        ]);
+    }
+    catch (\Exception $e) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+           'email' => 'This email could not be added to our newsletter list'
+        ]);
+    }
+
+    return redirect('/')->with('success', 'You are now signed op for our newsletter');
 });
 
 Route::get('/', [PostController::class, 'index'])->name('home');

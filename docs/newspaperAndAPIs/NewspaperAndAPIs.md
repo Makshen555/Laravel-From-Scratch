@@ -113,4 +113,42 @@ $response = $mailchimp->lists->addListMember('9b3f6bdc7d', [
 ]);
 ```
 
+## Hacer que el formulario del periodico funcione / Make the Newsletter Form Work
+
+Ahora vamos a hacer que el formulario de envio de correos funcione dinamicamente, para esto modificamos el endpoint en `web.php`
+
+```php
+Route::get('newsletter', function () {
+    $mailchimp = new \MailchimpMarketing\ApiClient();
+
+    $mailchimp->setConfig([
+        'apiKey' => config('services.mailchimp.key'),
+        'server' => 'us14'
+    ]);
+
+    try {
+        $response = $mailchimp->lists->addListMember('9b3f6bdc7d', [
+            'email_address' => request('email'),
+            'status' => 'suscribed'
+        ]);
+    }
+    catch (\Exception $e) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+           'email' => 'This email could not be added to our newsletter list'
+        ]);
+    }
+
+    return redirect('/')->with('success', 'You are now signed op for our newsletter');
+});
+```
+
+Luego editamos en layout para que el post sea redigido a la ruta que necesitamos, aproximadamente esta en la linea 64 del codigo y la linea seria esta
+
+```php
+<form method="POST" action="/newsletter" class="lg:flex text-sm">
+```
+El formulario no acepta cualquier email, por loq ue agregamos al codigo de arriba un try catch para enviar un mensaje en caso que el email no funcione, en este caso lo voy a probar con un email invalido para verificar si funciona
+
+![Alt text](image-9.png)
+
 ##
