@@ -119,7 +119,82 @@ Ahora creamos un post para comprobar que todo este funcionando de la manera corr
 
 Como vemos todo funciona de la manera correcta.
 
-## 
+## Validar y almacenar miniaturas de publicaciones / Validate and Store Post Thumbnails
+
+Agregamos una nueva seccion dentro del form de crear post que se llamara `Thumbnail`, ademas de agregar esto en el form `enctype="multipart/form-data"`
+
+Nos vamos al archivo fylesystems.php que se encuntra en la carpeta config y editamos la linea 16, en la que cambiamos la palabra `local` por `public`
+
+Luego dentro de nuestra terminal de la VM webserver y corremos el comando
+
+```bash
+php artisan storage:link
+```
+
+![Alt text](image-6.png)
+
+Ahora vamos a la migracion de posts para annadir dentro de la misma los thumbnails por lo que el schema quedaria de esta manera
+
+```php
+Schema::create('posts', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->foreignId('category_id');
+    $table->string('slug')->unique();
+    $table->string('title');
+    $table->string('thumbnail')->nullable();
+    $table->text('excerpt');
+    $table->text('body');
+    $table->timestamps();
+    $table->timestamp('published_at')->nullable();
+});
+```
+
+Luego refrescamos la base de datos con el comando que corremnos en la terminal de nuestra Vm webserver
+
+```bash
+php artisan migrate:fresh
+```
+
+![Alt text](image-7.png)
+
+Ahora modificamos la funcion para que tambien acepte los nuevos thumbnails
+
+```php
+    public function store(){
+        $attributes = request()->validate([
+            'title'=> 'required',
+            'thumbnail'=> 'required|image',
+            'slug'=> ['required', Rule::unique('posts', 'slug')],
+            'excerpt'=> 'required',
+            'body'=> 'required',
+            'category_id'=> ['required', Rule::exists('categories', 'id')],
+        ]);
+        $attributes['user_id'] = auth()->id();
+        $attributes['thumbnail'] = request()->file('thumbnail')->store('thumbanails');
+        Post::create($attributes);
+        return redirect('/');
+    }
+```
+Luego de haber vuelto a crear mi usuario `LuisGomez` que es el admin, vamos a probar a crear un nuevo post cargando una imagen en el mismo
+
+![Alt text](image-8.png)
+
+Como vemos en el Workbench la imagen se subio y se guardo de manera correcta dentro de la abse de datos
+
+![Alt text](image-9.png)
+
+Ahora debemos cambiar la ruta dentro de nuestra vista show, ya quye estamos cargando un imagen erronea
+
+Asi se veria el posts una vez entramos al mismo
+
+![Alt text](image-10.png)
+
+Y asi se veria en la main page una vez se carga de manera correcta la imagen del post
+
+![Alt text](image-11.png)
+
+##
 
 ```php
 
