@@ -194,6 +194,81 @@ Y asi se veria en la main page una vez se carga de manera correcta la imagen del
 
 ![Alt text](image-11.png)
 
+## Extraer componentes blade específicos del formulario / Extract Form-Specific Blade Components
+
+Vamos a extraer cada parte del formulario que esta compuesta por un input, textarea, mensaje de error, label o div que sea repetitivo y vamos a crear componetenes que puedan ser llamados en caso de necesitarlos no tener que escribir todo el codigo de nuevo, para esto creamos un nuevo folder con el nombre de form, dentro de la carpeta, en el que meteremos todos estos componentes.
+
+Codigo del componente input
+
+```php
+@props(['name', 'type' => 'text'])
+<div class="mb-6">
+    <x-form.label name="{{ $name }}"/>
+    <input class="border border-gray-400 p-2 w-full"
+           type="{{$type}}"
+           name="{{$name}}"
+           id="{{$name}}"
+           value="{{ old('title') }}"
+           required
+    >
+    <x-form.error name {{$name}} />
+</div>
+```
+
+Codigo del componente textarea
+
+```php
+@props(['name'])
+<div class="mb-6">
+    <x-form.label name="{{ $name }}"/>
+    <textarea class="border border-gray-400 p-2 w-full"
+           type="text"
+           name="{{$name}}"
+           id="{{$name}}"
+           required
+    > {{ old($name) }} </textarea>
+    <x-form.error name {{$name}} />
+</div>
+```
+
+Codigo del componente mensaje de error , este se llamara error
+
+```php
+@props(['name'])
+@error($name)
+    <p class="text-red-500 text-xs me-2">{{ $message }}</p>
+@enderror
+```
+
+Codigo del componente label
+
+```php
+@props(['name'])
+<label class="block mb-2 uppercase font-bold text-xs text-gray-700"
+       for="{{$name}}">
+    {{ucwords($name)}}
+</label>
+```
+
+Codigo del componente div, este se llamara field
+
+```php
+<div class="mt-6">
+    {{ $slot }}
+</div>
+```
+
+Ademas de estos el componente `submit-buttom` pasara a ser `buttom` y su codigo es este
+
+```php
+<x-form.field>
+    <button type="submit"
+            class="bg-blue-500 text-white uppercase font-semibold text-xs py-2 px-10 rounded-2xl hover:bg-blue-600">
+        {{ $slot }}
+    </button>
+</x-form.field>
+```
+
 ##
 
 ```php
