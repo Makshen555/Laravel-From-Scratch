@@ -308,7 +308,115 @@ Codiugo del componente setting
 
 Ademas de esto cambiamos ciertos aspectos tanto de funcionalidad como de css en create del folder sessions, y en el componente input del folder form
 
-##
+## Crear un formulario para editar y eliminar posts / Create a Form To Edit and Delete Posts
+
+Vamos al archivo de rutas a crear una nueva ruta
+
+```php
+Route::get('admin/posts', [AdminPostController::class, 'index'])->middleware('admin');
+```
+
+Ahora nos vamos a la terminal de la VM webserver a crear este nuevo controller con el comando
+
+```bash
+php artisan make:controller AdminPostController
+```
+
+![Alt text](image-12.png)
+
+Creamos la funcion index dentro de este nuevo controller
+
+```php
+public function index(){
+    return view('admin/posts/index', [
+        'posts' => Post::paginate(50)
+    ]);
+}
+```
+
+Creamos una nueva vista pero antes de eso debemos crear un nuevo folder llamado `admin`, dentro de este folder creamos otro llamadado `posts` y luego dentro de este ultimo creamos la vista a la que llamaremos `index.blade.php`
+
+![Alt text](image-13.png)
+
+Luego movemos  la vista `create` de posts a nuestra nueva ruta _admin/posts_
+
+Y editamos una linea en PostController donde esta referenciada la vista anterior
+
+Editamos la vista `setting` en donde eataba referenciado `dashboard`, lo vamos a cambiar por el nombre `All Post` y la ruta sera _admin/posts_
+
+Luego de haber creado como queremos que se vem los post existentes, vamos al archivo de rutas para crear la ruta que le dara funcionalidad al boton de editar post
+
+```php
+Route::get('admin/posts/{post}/edit', [AdminPostController::class, 'edit'])->middleware('admin');
+```
+Movemos las funciones `create()` y `store()` de PostController a AdminPostController ya que son funcionalidades que solos los administradores pueden utilizar, ademas de esto tenemos que editar las rutas para que utilicen el controller necesario al acceder a estas funcionalidades
+
+```php
+Route::get('admin/posts/create', [AdminPostController::class, 'create'])->middleware('admin');
+Route::post('admin/posts', [AdminPostController::class, 'store'])->middleware('admin');
+```
+
+Creamos una nueva funcion dentro de AdminPostController con la que le daremos funcionalidad a el endpoint de editar
+
+```php
+public function edit(Post $post)
+    {
+        return view('admin.posts.edit', ['post' => $post]);
+    }
+
+```
+Creamos la vista para poder editar los posts, podemos reutilizar el codigo de `create`
+
+Asi se veria la vista de edit al editar un poco el codig
+
+![Alt text](image-14.png)
+
+Creamos otra ruta mas, esta sera para hacer el update de 
+
+```php
+Route::patch('admin/posts/{post}', [AdminPostController::class, 'update'])->middleware('admin');
+```
+
+Y tambien creamos la respectiva funcion en AdminPostController que le dara funcionalidad a esta ruta
+
+```php
+public function update(Post $post) {
+    $attributes = request()->validate([
+        'title'=> 'required',
+        'thumbnail'=> 'required|image',
+        'slug'=> ['required', Rule::unique('posts', 'slug')->ignore($post->id)],
+        'excerpt'=> 'required',
+        'body'=> 'required',
+        'category_id'=> ['required', Rule::exists('categories', 'id')],
+    ]);
+    if(isset($attributes['thumbnail'])) {
+        $attributes['thumbnail'] = request()->file('thumbnail')->store('thumbnails');
+    }
+    $post->update($attributes);
+     return back()->with('success', 'Post Updated');
+}
+```
+Y ahora podemos actualzar nuestros posts
+
+Creamos el endpoint para poder eliminar posts
+
+```php
+Route::delete('admin/posts/{post:id}', [AdminPostController::class, 'destroy'])->middleware('admin');
+```
+
+Creamos la funcion para eliminar posts
+
+```php
+public function destroy(Post $post)
+    {
+        $post->delete();
+
+        return back()->with('success', 'Post Deleted!');
+    }
+```
+
+Y ahora podemos eliminar posts.
+
 ##
 ##
 
