@@ -462,8 +462,52 @@ public function update(Post $post) {
 }
 ```
 
-##
+## Todo sobre la autorización / All About Authorization
+
+Vamos al archivo `AppServiceProvider` para crear una puerta para que las opciones de administrador unicamente el usuario administrador pueda verlas, ya que el acceso es solo suyo.
+
+En AppServiceProvider met6emos est6e codigo en al funcion boot()
 
 ```php
+Gate::define('admin', function (User $user) {
+    return $user->username === 'TuUsuario';
+});
+```
 
+Ahora nos vamos al componente layout y copiamos este codigo, para que al acceder a la web en caso de nos er admin puedas ver la opcion de logout pero no las otras dos opciones de admin.
+
+```php
+@if(auth()->user()->can('admin'))
+    <x-dropdown-item href="/admin/posts"> All Post </x-dropdown-item>
+    <x-dropdown-item href="/admin/posts/create" :active="request()->is('admin/posts/create')">New Post</x-dropdown-item>
+@endif
+```
+
+Tambien podemos hacerlo de esta manera creando el `@admin` en `AppServiceProvider`, este seria el codigo.
+
+```php
+Blade::if('admin', function () {
+    return request()->user()?->can('admin');
+});
+```
+
+Asi quedaria el codigo en el componente layout
+
+```php
+@admin
+    <x-dropdown-item href="/admin/posts"> All Post </x-dropdown-item>
+    <x-dropdown-item href="/admin/posts/create" :active="request()->is('admin/posts/create')">New Post</x-dropdown-item>
+@endadmin
+```
+
+Eliminamos el middleware `MustBeAdministrator` ya que en `AppServiceProvider` estamos haciendo lo que hacia esa clase.
+
+Y editamos el archivo `Kernel.php` para eliminar la ruta del Middleware
+
+Nos vamos a web.php y agregamos lo siguiente, este codigo eatestaria lo mismo que todos los endpoints que teniamos anteriormente.
+
+```php
+Route::middleware('can:admin')->group(function (){
+    Route::resource('admin/posts', AdminPostController::class)->except('show');
+});
 ```

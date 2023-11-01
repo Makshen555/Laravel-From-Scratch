@@ -33,6 +33,10 @@
         </div>
 
         <div class="mt-8 md:mt-0 flex items-center">
+            @admin
+            <x-dropdown-item href="/admin/posts"> All Post </x-dropdown-item>
+            <x-dropdown-item href="/admin/posts/create" :active="request()->is('admin/posts/create')">New Post</x-dropdown-item>
+            @endadmin
             @auth
                 <x-dropdown>
                         <x-slot name="trigger">
@@ -40,8 +44,6 @@
                                 Welcome, {{ auth()->user()->name }}!
                             </button>
                         </x-slot>
-                    <x-dropdown-item href="/admin/posts"> All Post </x-dropdown-item>
-                    <x-dropdown-item href="/admin/posts/create" :active="request()->is('admin/posts/create')">New Post</x-dropdown-item>
                     <x-dropdown-item href="#" x-data="{}" @click.prevent="document.querySelector('#logout-form').submit()">Log Out</x-dropdown-item>
                 </x-dropdown>
                 <form id="logout-form" method="POST" action="/logout" class="hidden">
