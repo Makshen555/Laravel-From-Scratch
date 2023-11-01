@@ -83,9 +83,43 @@ Route::get('admin/posts/create', [PostController::class, 'create'])->middleware(
 ```
 Probamos con un usuario que no sea admin
 
+![Alt text](image-4.png)
 
+## Crear el formulario para publicar posts / Create the Publish Post Form
 
-##
+En la vista que creamos llamada create en el forlder posts vamos a crear el form para poder publicar nuevos posts
+
+Luego de haber creado todo el form, iremos a web.php a crear la ruta para poder crear los posts
+
+```php
+Route::get('admin/posts', [PostController::class, 'store'])->middleware('admin');
+```
+
+Luego nos vamos a PostController a crear la funcion con la que los posts se guardaran en la base de datos
+
+```php
+    public function store(){
+        $attributes = request()->validate([
+            'title'=> 'required',
+            'slug'=> ['required', Rule::unique('posts', 'slug')],
+            'excerpt'=> 'required',
+            'body'=> 'required',
+            'category_id'=> ['required', Rule::exists('categories', 'id')],
+        ]);
+        $attributes['user_id'] = auth()->id();
+        
+        Post::create($attributes);
+        return redirect('/');
+    }
+```
+
+Ahora creamos un post para comprobar que todo este funcionando de la manera correcta
+
+![Alt text](image-5.png)
+
+Como vemos todo funciona de la manera correcta.
+
+## 
 
 ```php
 
