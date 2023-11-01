@@ -417,7 +417,51 @@ public function destroy(Post $post)
 
 Y ahora podemos eliminar posts.
 
-##
+## Agrupar logica de validacion de Store / Group and Store Validation Logic
+
+Las funciones update() y store() dentro del controller AdminPostController basicamente tienen la misma logica a excepcion de unas lineas de codigo, por lo que vamos a crear una nueva funcion llamada validatePost que se encargara de validar la informacion del post.
+
+Codigo de la funcion validatePost()
+
+```php
+public function validatePost(Post $post):array {
+        return request()->validate([
+            'title'=> 'required',
+            'thumbnail'=> $post->exists ? ['image'] : ['required', 'image'],
+            'slug'=> ['required', Rule::unique('posts', 'slug')->ignore($post->id)],
+            'excerpt'=> 'required',
+            'body'=> 'required',
+            'category_id'=> ['required', Rule::exists('categories', 'id')],
+            'published_at' => 'required'
+        ]);
+    }
+```
+
+Editamos la funcion store()
+
+```php
+public function store(){
+    Post::create(array_merge($this->validatePost(), [
+        'user_id' => request()->user()->id,
+        'thumbnail' => request()->file('thumbnail')->store('thumbnails')
+    ]));
+    return redirect('/');
+}
+```
+
+Editamos la funcion update()
+
+```php
+public function update(Post $post) {
+    $attributes = $this->validatePost($post);
+    if ($attributes['thumbnail'] ?? false) {
+        $attributes['thumbnail'] = request()->file('thumbnail')->store('thumbnails');
+    }
+    $post->update($attributes);
+    return back()->with('success', 'Post Updated');
+}
+```
+
 ##
 
 ```php
