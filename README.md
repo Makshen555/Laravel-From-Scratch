@@ -33,3 +33,4 @@ Tercer y ultimo avance del proyeto #2 de Aplicaciones web con Software Libre.
 - [Comments](./docs/comments/Comments.md)
 - [Newspaper and APIs](./docs/newspaperAndAPIs/NewspaperAndAPIs.md)
 - [Admin Section](./docs/adminSection/AdminSection.md)
+- [Conclusion](./docs/conclusion/Conclusion.md)
